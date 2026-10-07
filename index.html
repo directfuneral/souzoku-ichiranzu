@@ -10,7 +10,7 @@
 <style>
 :root{
   --desk:#dde2e6; --panel:#f7f8f6; --ink:#1c1e20; --sub:#59616a; --line:#c6ccd2;
-  --accent:#2b4a6c; --accent-ink:#ffffff; --field:#ffffff; --soft:#eef1f4; --warn:#7d430b; --warnbg:#fbefdd;
+  --accent:#2b4a6c; --accent-ink:#ffffff; --field:#ffffff; --soft:#eef1f4; --warn:#7d430b; --warnbg:#fbefdd; --head:#c4470f; --head-ink:#ffffff;
   color-scheme:light dark;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);
@@ -19,12 +19,12 @@
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --desk:#1b2024; --panel:#252b30; --ink:#e6e9eb; --sub:#a2aab1; --line:#3b444b;
-    --accent:#93b5d8; --accent-ink:#10202e; --field:#1d2327; --soft:#2c3338; --warn:#f1c58c; --warnbg:#3a2f20;
+    --accent:#93b5d8; --accent-ink:#10202e; --field:#1d2327; --soft:#2c3338; --warn:#f1c58c; --warnbg:#3a2f20; --head:#ff9a66; --head-ink:#10251a;
   }
 }
 :root[data-theme="dark"]{
   --desk:#1b2024; --panel:#252b30; --ink:#e6e9eb; --sub:#a2aab1; --line:#3b444b;
-  --accent:#93b5d8; --accent-ink:#10202e; --field:#1d2327; --soft:#2c3338; --warn:#f1c58c; --warnbg:#3a2f20;
+  --accent:#93b5d8; --accent-ink:#10202e; --field:#1d2327; --soft:#2c3338; --warn:#f1c58c; --warnbg:#3a2f20; --head:#ff9a66; --head-ink:#10251a;
 }
 *,*::before,*::after{box-sizing:inherit}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
@@ -38,7 +38,7 @@ body{margin:0;background:var(--desk);color:var(--ink);
   font-size:21px;font-weight:600;margin:0 0 4px;letter-spacing:.04em}
 .panel .lead{margin:0 0 22px;color:var(--sub);font-size:12.5px}
 fieldset{border:0;margin:0 0 26px;padding:0;min-width:0}
-legend{font-size:15px;font-weight:700;padding:0 0 6px;margin-bottom:10px;width:100%;border-bottom:2px solid var(--ink);display:flex;justify-content:space-between;align-items:center;gap:8px}
+legend{font-size:15.5px;font-weight:700;padding:0 0 6px;margin-bottom:12px;width:100%;color:var(--head);border-bottom:2px solid var(--head);display:flex;justify-content:space-between;align-items:center;gap:8px;letter-spacing:.03em}
 .leg-btns{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
 .btn-sec{background:var(--field);border:1px solid var(--line);color:var(--accent);padding:2px 7px;font-size:11.5px;font-weight:400;white-space:nowrap}
 .btn-sec:disabled{opacity:.35;cursor:not-allowed}
@@ -124,6 +124,13 @@ button{font:inherit;cursor:pointer;border-radius:4px}
 .sheet{width:100%;max-width:720px;aspect-ratio:210/297;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2),0 10px 28px rgba(0,0,0,.14)}
 .sheet svg{display:block;width:100%;height:100%}
 /* タブ */
+.tabs .tab-data{margin-left:auto;align-self:center;margin-bottom:4px;border:1px solid var(--accent);border-bottom:1px solid var(--accent);border-radius:4px;padding:5px 12px;color:var(--accent);background:var(--field);font-weight:700;white-space:nowrap}
+.tabs .tab-data:hover{background:var(--soft)}
+dialog.data-dlg{border:0;padding:0;border-radius:10px;width:min(460px,calc(100vw - 24px));max-height:calc(100vh - 24px);background:var(--panel);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.35)}
+dialog.data-dlg::backdrop{background:rgba(20,28,36,.55)}
+dialog.data-dlg .man-head h2{font-size:17px}
+dialog.data-dlg .data-box{border:0;border-radius:0;margin:0;padding:14px 20px 10px;background:transparent}
+@media print{dialog.data-dlg{display:none !important}}
 .tabs{width:100%;max-width:720px;display:flex;border-bottom:2px solid var(--line)}
 .tabs button{background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-2px;padding:8px 18px;font-weight:700;color:var(--sub);border-radius:0}
 .tabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
@@ -292,26 +299,6 @@ dialog.manual::backdrop{background:rgba(20,28,36,.55)}
       <button type="button" class="btn-clear-all" id="clearAll" data-label="すべてクリア">すべてクリア</button>
       <p class="ur-msg" id="urMsg" role="status"></p>
     </div>
-    <section class="data-box" aria-labelledby="data-h">
-      <h2 id="data-h">データの保存・読込</h2>
-      <div class="field"><label for="caseName">保存名</label><input type="text" id="caseName" placeholder="例：山田太郎一覧図"></div>
-      <p class="note" id="caseNameNote" style="margin:-6px 0 6px">被相続人の氏名から自動で入ります。必要なら直してください（ファイル名・ブラウザ内の保存名の両方に使います）。</p>
-      <h3>ファイル（案件ごとに保管）</h3>
-      <div class="btn-row">
-        <button type="button" class="btn-line" id="fileSave">ファイルに保存</button>
-        <button type="button" class="btn-line" id="fileLoad">ファイルを読み込む</button>
-        <input type="file" id="fileInput" accept=".json,application/json" hidden>
-      </div>
-      <p class="note" id="saveHint" style="margin:-4px 0 8px"></p>
-      <h3>このブラウザ内</h3>
-      <div class="btn-row"><button type="button" class="btn-line" id="bSave">ブラウザに保存</button></div>
-      <div class="field"><label for="caseList">保存済みのデータ</label><select id="caseList"></select></div>
-      <div class="btn-row">
-        <button type="button" class="btn-line" id="bLoad">読み込む</button>
-        <button type="button" class="btn-line danger" id="bDel">削除</button>
-      </div>
-      <p class="data-msg" id="dataMsg" role="status"></p>
-    </section>
     <form id="form" autocomplete="off" onsubmit="return false"></form>
     <p class="privacy">入力内容は外部へ送信されません。保存しない限り、ページを閉じると消えます。ブラウザ内に保存したデータは暗号化されないため、共用のパソコンでは使用後に削除してください。</p>
     <datalist id="rel-child"><option>長男</option><option>長女</option><option>二男</option><option>二女</option><option>三男</option><option>三女</option><option>養子</option><option>養女</option><option>子</option></datalist>
@@ -323,6 +310,7 @@ dialog.manual::backdrop{background:rgba(20,28,36,.55)}
       <button type="button" role="tab" id="tab-zu" aria-selected="true" data-tab="zu">一覧図</button>
       <button type="button" role="tab" id="tab-app" aria-selected="false" data-tab="app">申出書</button>
       <button type="button" role="tab" id="tab-att" aria-selected="false" data-tab="att">添付資料</button>
+      <button type="button" class="tab-data" id="dataBtn" aria-haspopup="dialog">保存・読込</button>
     </div>
     <div class="toolbar">
       <div class="btn-row" style="margin:0;flex:none"><button type="button" class="btn-print only-zu" id="printBtn">A4印刷 / PDF保存</button><button type="button" class="btn-line only-zu" id="xlsxBtn">Excelで出力</button><button type="button" class="btn-line only-app" id="docxBtn">Wordで出力</button><button type="button" class="btn-print only-att" id="attPrintBtn">チェックシートを印刷</button></div>
@@ -342,6 +330,29 @@ dialog.manual::backdrop{background:rgba(20,28,36,.55)}
   </main>
 </div>
 
+<dialog class="data-dlg" id="dataDlg" aria-labelledby="data-h">
+  <div class="man-head"><h2 id="data-h">データの保存・読込</h2><button type="button" class="man-close" id="dataClose">閉じる</button></div>
+    <section class="data-box dlg-body" aria-labelledby="data-h">
+      
+      <div class="field"><label for="caseName">保存名</label><input type="text" id="caseName" placeholder="例：山田太郎一覧図"></div>
+      <p class="note" id="caseNameNote" style="margin:-6px 0 6px">被相続人の氏名から自動で入ります。必要なら直してください（ファイル名・ブラウザ内の保存名の両方に使います）。</p>
+      <h3>ファイル（案件ごとに保管）</h3>
+      <div class="btn-row">
+        <button type="button" class="btn-line" id="fileSave">ファイルに保存</button>
+        <button type="button" class="btn-line" id="fileLoad">ファイルを読み込む</button>
+        <input type="file" id="fileInput" accept=".json,application/json" hidden>
+      </div>
+      <p class="note" id="saveHint" style="margin:-4px 0 8px"></p>
+      <h3>このブラウザ内</h3>
+      <div class="btn-row"><button type="button" class="btn-line" id="bSave">ブラウザに保存</button></div>
+      <div class="field"><label for="caseList">保存済みのデータ</label><select id="caseList"></select></div>
+      <div class="btn-row">
+        <button type="button" class="btn-line" id="bLoad">読み込む</button>
+        <button type="button" class="btn-line danger" id="bDel">削除</button>
+      </div>
+      <p class="data-msg" id="dataMsg" role="status"></p>
+    </section>
+</dialog>
 <script>
 (function(){
 'use strict';
@@ -367,7 +378,7 @@ const state={
   halfSib:{on:false,common:'父'},
   showAddr:true, showHonseki:true,
   deceased:{name:'山田　太郎',birth:D('昭和',15,4,10),death:D('令和',8,6,2),
-    deathFree:'',addr:'〇〇県〇〇市〇〇町一丁目1番1号',honseki:'〇〇県〇〇市〇〇町一丁目1番'},
+    deathFree:'',addr:'〇〇県〇〇市〇〇町一丁目1番1号',addr2:'',honseki:'〇〇県〇〇市〇〇町一丁目1番'},
   hasSpouse:true,
   spouse:{rel:'妻',name:'山田　花子',birth:D('昭和',18,2,3),addr:'〇〇県〇〇市〇〇町一丁目1番1号',addr2:'',applicant:true},
   children:[
@@ -493,7 +504,8 @@ function kkJudge(addr){
   }
   return {status:'ok',offices:[base],place:h.pref+(h.e.county||'')+h.e.name};
 }
-const KK_SRC={honseki:['被相続人の最後の本籍',()=>state.deceased.honseki],jusho:['被相続人の最後の住所',()=>state.deceased.addr],
+const decAddrJoined=()=>String(state.deceased.addr||'').trim()+String(state.deceased.addr2||'').trim();
+const KK_SRC={honseki:['被相続人の最後の本籍',()=>state.deceased.honseki],jusho:['被相続人の最後の住所',decAddrJoined],
   moushide:['申出人の住所',()=>state.app.applicantAddr],fudosan:['不動産所在事項',()=>state.app.realtyText]};
 function bureauJudge(){
   const a=state.app,src=KK_SRC[a.officeType];
@@ -577,9 +589,9 @@ function refreshBureauUI(){
   const fc=document.getElementById('favChk');if(fc)fc.checked=isFav();
 }
 
-/* 申出人：一覧図で申出人にした人の氏名・住所を初期値として入れる（手で直したらそのまま） */
+/* 申出人：一覧図で申出人にした相続人の氏名・住所を申出書にも使う（どちらで直しても同じ内容） */
 function syncApplicant(){
-  const a=state.app;if(a.applEdited)return false;
+  const a=state.app;a.applEdited=false;
   const ap=applicants()[0];
   const n=ap?String(ap.p.name||'').trim():'', d=ap?(String(ap.p.addr||'').trim()+String(ap.p.addr2||'').trim()):'';
   const changed=a.applicantName!==n||a.applicantAddr!==d;
@@ -651,6 +663,7 @@ function renderForm(){
   syncBureau();
   setTimeout(()=>{if(typeof updUndo==='function')updUndo();},0);
   const c=state.creator, p=state.pattern;
+  if(formMode()==='app'){form.innerHTML=appFields();return;}
   let heirs='';
   if(p==='children'){
     heirs=`<fieldset><legend><span>子（相続人）</span><span class="leg-btns"><button type="button" class="btn-sec" data-act="secundo" data-sec="heirs" title="この欄をひとつ前に戻す">↶ 元に戻す</button><button type="button" class="btn-sec" data-act="secredo" data-sec="heirs" title="この欄をやり直す">↷ やり直し</button><button type="button" class="btn-clear" data-act="clear" data-sec="heirs" data-label="クリア">クリア</button></span></legend>
@@ -685,7 +698,9 @@ function renderForm(){
     ${fDate('deceased.death','死亡')}
     ${fText('deceased.deathFree','死亡（自由記載）','placeholder="例：令和8年3月1日から30日の間"')}
     <p class="note">自由記載欄に入力すると、上の選択式より優先して図に表示されます。</p>
-    ${fText('deceased.addr','最後の住所')}
+    ${fText('deceased.addr','最後の住所（1段目）')}
+    ${fText('deceased.addr2','最後の住所（2段目・建物名など）','placeholder="先頭に空白を入れると右にずらせます"')}
+    <p class="note">2段目は申出書で一段下げて記載します（先頭の空白で位置を調整できます）。一覧図では1段目に続けて記載し、長いときは自動で折り返します。</p>
     ${state.showHonseki?fText('deceased.honseki','最後の本籍'):''}
   </fieldset>
   <fieldset><legend><span>配偶者</span><span class="leg-btns"><button type="button" class="btn-sec" data-act="secundo" data-sec="spouse" title="この欄をひとつ前に戻す">↶ 元に戻す</button><button type="button" class="btn-sec" data-act="secredo" data-sec="spouse" title="この欄をやり直す">↷ やり直し</button><button type="button" class="btn-clear" data-act="clear" data-sec="spouse" data-label="クリア">クリア</button></span></legend>
@@ -713,8 +728,27 @@ function renderForm(){
     <p class="note">作成者欄を下へ動かせます。下5cmの認証欄には入らないよう、上限で自動的に止まります。</p>
     <p class="note">作成者の押印は令和3年4月1日から不要のため、「印」は入れていません。</p>
     <p class="note">資格者代理人の資格・氏名・事務所と連絡先は、このブラウザに記憶され、次に開いたときも同じ内容が入ります。変わったときは、ここを直せば記憶も更新されます。</p>
-  </fieldset>
-  ${appFields()}`;
+  </fieldset>`;
+}
+// 左側に表示する入力欄（申出書タブのときだけ申出書の入力欄、それ以外は一覧図の入力欄）
+function formMode(){const pv=document.querySelector('.preview');return pv&&pv.dataset.tab==='app'?'app':'zu';}
+function legBtns(sec,clear=true){
+  return `<span class="leg-btns"><button type="button" class="btn-sec" data-act="secundo" data-sec="${sec}" title="この欄をひとつ前に戻す">↶ 元に戻す</button><button type="button" class="btn-sec" data-act="secredo" data-sec="${sec}" title="この欄をやり直す">↷ やり直し</button>${clear?`<button type="button" class="btn-clear" data-act="clear" data-sec="${sec}" data-label="クリア">クリア</button>`:''}</span>`;
+}
+// 申出人の候補（一覧図に入力した相続人）と、その入力欄のパス
+function heirPaths(){
+  const out=[],p=state.pattern;
+  if(state.hasSpouse)out.push({path:'spouse',o:state.spouse,rel:state.spouse.rel||'配偶者'});
+  const list=p==='children'?'children':p==='siblings'?'siblings':null;
+  if(list)state[list].forEach((e,i)=>{
+    if(e.status==='alive')out.push({path:`${list}.${i}`,o:e,rel:e.rel||(list==='children'?'子':'兄弟姉妹')});
+    else e.kids.forEach((k,j)=>out.push({path:`${list}.${i}.kids.${j}`,o:k,rel:cleanRel(k.rel)||'代襲者'}));
+  });
+  if(p==='parents'){
+    if(state.parents.father.on)out.push({path:'parents.father',o:state.parents.father,rel:'父'});
+    if(state.parents.mother.on)out.push({path:'parents.mother',o:state.parents.mother,rel:'母'});
+  }
+  return out;
 }
 function rerender(t){
   const p=t.dataset.path, v=t.value;
@@ -725,6 +759,11 @@ function rerender(t){
 form.addEventListener('input',e=>{
   const t=e.target;
   if(t.dataset.bpick){checkpoint('bpick',true,['app']);state.app.bureauPick=t.value;syncBureau();refreshBureauUI();draw();updUndo();return;}
+  if(t.dataset.appsel){   // 申出書タブで申出人を選ぶ（一覧図の「申出人として表示する」と連動）
+    checkpoint('appsel',true,['heirs']);
+    if(t.value){setPath(state,t.value+'.applicant',true);onlyApplicant(t.value+'.applicant');}else onlyApplicant('');
+    renderForm();draw();updUndo();const s=document.getElementById('applSel');if(s)s.focus();return;
+  }
   if(t.dataset.fav){if(t.id==='favSel'){checkpoint('fav',true,['app']);state.app.bureauEdited=true;}handleFav(t);return;}
   const p=t.dataset.path; if(!p)return;
   if(t.type==='radio'&&!t.checked)return;
@@ -732,11 +771,7 @@ form.addEventListener('input',e=>{
   setPath(state,p,t.type==='checkbox'?t.checked:t.value);
   if(/\.applicant$/.test(p)&&t.checked)onlyApplicant(p);   // 申出人は1人だけ
   form.querySelectorAll('[data-path]').forEach(x=>{if(x!==t&&x.dataset.path===p&&x.type!=='radio'&&x.type!=='checkbox')x.value=t.value;});
-  if(p==='app.applicantName'||p==='app.applicantAddr'){
-    if(!state.app.applEdited){state.app.applEdited=true;rerender(t);draw();return;}
-  }else if(syncApplicant()){
-    for(const k of ['applicantName','applicantAddr']){const el=form.querySelector(`[data-path="app.${k}"]`);if(el)el.value=state.app[k];}
-  }
+  syncApplicant();
   if(p==='app.branchKind'){if(t.value==='本局')state.app.branch='';refreshBureauUI();}
   if(/^app\.(bureau|bureauKind|branch|branchKind)$/.test(p))refreshBureauLinks();
   if(/^app\.(bureau|bureauKind|branch|branchKind)$/.test(p)){
@@ -744,7 +779,7 @@ form.addEventListener('input',e=>{
   }else if(p!=='app.officeType'||true){
     if(p==='app.officeType'){state.app.bureauPick='';}
     const ch=syncBureau();
-    if(ch||/^(deceased\.(honseki|addr)|app\.(applicantAddr|realtyText|officeType))$/.test(p)||p.startsWith('children')||p.startsWith('spouse')||p.startsWith('parents')||p.startsWith('siblings'))refreshBureauUI();
+    if(ch||/^(deceased\.(honseki|addr2?)|app\.(applicantAddr|realtyText|officeType))$/.test(p)||p.startsWith('children')||p.startsWith('spouse')||p.startsWith('parents')||p.startsWith('siblings'))refreshBureauUI();
   }
   if(p.startsWith('creator.')&&(AGENT_FIELDS.includes(p.slice(8))||p==='creator.mode')||p==='app.agentTel')saveAgentSoon();
   if(/^app\.(bureau|bureauKind|branch|branchKind)$/.test(p)){
@@ -871,7 +906,7 @@ function blankCreator(){
 function storedAgentTel(){const g=lsGet(AGENT_KEY,null);return g&&typeof g.agentTel==='string'?g.agentTel:'';}
 const CLEAR={
   pattern(){state.pattern='children';state.showAddr=true;state.showHonseki=true;state.layout={pages:1,split:0};},
-  deceased(){state.deceased={name:'',birth:D('昭和','','',''),death:D('令和','','',''),deathFree:'',addr:'',honseki:''};},
+  deceased(){state.deceased={name:'',birth:D('昭和','','',''),death:D('令和','','',''),deathFree:'',addr:'',addr2:'',honseki:''};},
   spouse(){state.spouse={rel:'妻',name:'',birth:D('昭和','','',''),addr:'',addr2:'',applicant:false};},
   heirs(){
     if(state.pattern==='children')state.children=[];
@@ -964,22 +999,45 @@ function applicants(){return heirsFlat().filter(h=>h.p.applicant);}
 const cleanRel=r=>String(r||'').replace(/・?代襲者/,'').trim();
 function fChk(path,label,rer){return fCheck(path,label,rer);}
 function appFields(){
-  const a=state.app,c=state.creator,ap=applicants();
-  const apInfo=ap.length?`${esc(ap[0].p.name||'（氏名未入力）')}（${esc(cleanRel(ap[0].rel))}）`:'';
-  return `<fieldset><legend><span>申出書</span><span class="leg-btns"><button type="button" class="btn-sec" data-act="secundo" data-sec="app" title="この欄をひとつ前に戻す">↶ 元に戻す</button><button type="button" class="btn-sec" data-act="secredo" data-sec="app" title="この欄をやり直す">↷ やり直し</button><button type="button" class="btn-clear" data-act="clear" data-sec="app" data-label="クリア">クリア</button></span></legend>
-    <p class="note">被相続人・申出人・代理人の欄は、一覧図の入力内容から自動で作成します。ここでは申出書だけの項目を入力します。</p>
-    ${fDate('app.date','申出年月日')}
-    <div class="field"><span class="lbl">申出人</span>
-      <p class="note" style="margin:0">${ap.length?`${apInfo}　※一覧図で「申出人として表示する」にチェックした人`:'一覧図で、申出人になる相続人の「申出人として表示する」にチェックしてください。'}</p></div>
-    ${fText('app.applicantName','申出人の氏名')}
-    ${fText('app.applicantAddr','申出人の住所')}
-    <p class="note">一覧図で申出人にした人の氏名・住所が入ります。${a.applEdited?'現在は手で修正した内容を使っています。<button type="button" class="btn-sub" data-act="resetAppl">一覧図の内容に戻す</button>':'申出人の本人確認書類と違う場合は、ここで直してください。'}</p>
+  const a=state.app,c=state.creator,hp=heirPaths(),cur=hp.find(h=>h.o.applicant);
+  const addrNote='<p class="note">住所は2段に分けて入力できます。2段目にはマンション名などを入れてください。</p>';
+  return `<p class="note okline" style="margin:0 0 14px">申出書の入力欄です。「被相続人」「申出人」「代理人」の欄は一覧図の入力欄と共通で、どちらで直しても、もう一方に反映されます。</p>
+  <fieldset><legend><span>被相続人</span>${legBtns('deceased')}</legend>
+    ${fText('deceased.name','氏名')}
+    ${fDate('deceased.birth','生年月日')}
+    ${fDate('deceased.death','死亡年月日')}
+    ${fText('deceased.deathFree','死亡（自由記載）','placeholder="例：令和8年3月1日から30日の間"')}
+    <p class="note">自由記載欄に入力すると、上の選択式より優先されます。</p>
+    ${fText('deceased.addr','最後の住所（1段目）')}
+    ${fText('deceased.addr2','最後の住所（2段目・建物名など）','placeholder="先頭に空白を入れると右にずらせます"')}
+    <p class="note">2段目は申出書で一段下げて記載します（先頭の空白で位置を調整できます）。一覧図では1段目に続けて記載し、長いときは自動で折り返します。</p>
+    ${state.showHonseki||a.officeType==='honseki'?fText('deceased.honseki','最後の本籍'):''}
+    ${!state.showHonseki&&a.officeType==='honseki'?'<p class="note">本籍は申出書には記載されませんが、提出先の判定に使います（一覧図には「本籍を記載する」にしたときだけ表示されます）。</p>':''}
+  </fieldset>
+  <fieldset><legend><span>申出人</span>${legBtns('heirs',false)}</legend>
+    ${hp.length?`<div class="field"><label for="applSel">申出人（相続人から選ぶ）</label><select id="applSel" data-appsel="1">${cur?'':'<option value="" selected>（選択してください）</option>'}${hp.map(h=>`<option value="${esc(h.path)}"${h===cur?' selected':''}>（${esc(h.rel)}）${esc(String(h.o.name||'').trim()||'氏名未入力')}</option>`).join('')}</select></div>
+      <p class="note">ここで選んだ人が、一覧図でも「（申出人）」と表示されます。</p>`
+      :'<p class="note warnline">相続人が入力されていません。一覧図の入力欄で相続人を入力してください。</p>'}
+    ${cur?`${fText(cur.path+'.name','申出人の氏名')}
+      ${fText(cur.path+'.addr','申出人の住所（1段目）')}
+      ${fText(cur.path+'.addr2','申出人の住所（2段目・建物名など）','placeholder="先頭に空白を入れると右にずらせます"')}
+      ${addrNote}<p class="note">本人確認書類と同じ住所・氏名にしてください。${state.showAddr?'':'（一覧図には相続人の住所を記載しない設定のため、住所は申出書だけに使われます）'}</p>`:''}
     ${fText('app.applicantTel','申出人の連絡先（電話番号）','inputmode="tel" placeholder="例：052-000-0000"')}
+  </fieldset>
+  <fieldset><legend><span>代理人</span>${legBtns('creator')}</legend>
+    ${fSeg('creator.mode','作成者の形式',[['self','申出人本人'],['agent','資格者代理人']],true)}
     ${c.mode==='agent'?`
-      <div class="field"><span class="lbl">代理人</span><p class="note" style="margin:0">${esc([c.qual,c.name].filter(Boolean).join('　'))}（作成者欄から自動）</p></div>
+      <div class="row2">${fText('creator.qual','資格の名称')}${fText('creator.name','氏名')}</div>
+      ${fText('creator.officeAddr','事務所の住所（1段目）')}
+      ${fText('creator.officeAddr2','事務所の住所（2段目・建物名など）','placeholder="例：　　〇〇ハイツ101号"')}
+      ${fText('creator.office','事務所名（任意）')}
       ${fText('app.agentTel','代理人の連絡先（電話番号）','inputmode="tel" placeholder="例：052-000-0000"')}
-      ${fSeg('app.agentRel','申出人との関係',[['ninni','委任による代理人'],['houtei','法定代理人']])}`
+      ${fSeg('app.agentRel','申出人との関係',[['ninni','委任による代理人'],['houtei','法定代理人']])}
+      <p class="note">資格者代理人の資格・氏名・事務所と連絡先は、このブラウザに記憶されます。</p>`
       :`<p class="note">作成者が申出人本人のため、代理人欄は空欄になります。</p>`}
+  </fieldset>
+  <fieldset><legend><span>申出書</span>${legBtns('app')}</legend>
+    ${fDate('app.date','申出年月日')}
     <div class="field"><span class="lbl">利用目的</span></div>
     ${fChk('app.purpose.fudosan','不動産登記')}
     ${fChk('app.purpose.yokin','預貯金の払戻し')}
@@ -993,7 +1051,7 @@ function appFields(){
     </div>
     ${fSeg('app.realty','被相続人名義の不動産',[['yes','有'],['no','無']],true)}
     ${a.realty==='yes'?fText('app.realtyText','不動産所在事項又は不動産番号','placeholder="例：不動産番号 1234567890123"')+'<p class="note">複数ある場合は1つで足ります。申出先を「不動産の所在地」にする場合は、その登記所の管轄内の不動産を書いてください。</p>':''}
-    ${fSeg('app.officeType','申出先登記所の種別',[['honseki','本籍地'],['jusho','最後の住所地'],['moushide','申出人の住所地'],['fudosan','不動産所在地']])}
+    ${fSeg('app.officeType','申出先登記所の種別',[['honseki','本籍地'],['jusho','最後の住所地'],['moushide','申出人の住所地'],['fudosan','不動産所在地']],true)}
     <div class="field"><span class="lbl">提出先</span>
       <div id="bureauAuto" role="status">${bureauInfoHtml()}</div>
       ${(()=>{const fl=favList();return fl.length?`<div class="field"><label for="favSel">よく使用する法務局から選ぶ</label><select id="favSel" data-fav="1"><option value="">（選択してください）</option>${fl.map((f,i)=>`<option value="${i}"${favKey(f)===favKey(curBureau())?' selected':''}>${esc(favLabel(f))}</option>`).join('')}</select></div>`:'';})()}
@@ -1094,7 +1152,7 @@ function personBlock(p,m,w,rel){
 }
 function deceasedBlock(m,w){
   const d=state.deceased, b=block(m,w);
-  b.text('最後の住所').wrapText(d.addr||'');
+  b.text('最後の住所').wrapText(String(d.addr||'').trim()+String(d.addr2||'').trim());
   if(state.showHonseki){b.text('最後の本籍').wrapText(d.honseki||'',0,{xj:++GRP,xjNoSep:true});}   // Excelでは本籍を1セルに
   b.kv('出生',fmtDate(d.birth)).kv('死亡',String(d.deathFree||'').trim()||fmtDate(d.death));
   b.text('（被相続人）',m.fs*0.4);
@@ -2429,9 +2487,9 @@ function appData(){
   const free=String(d.deathFree||'').trim();
   return {
     dateSlot:a.date&&a.date.y?`${a.date.y==='1'?'　元':P2(a.date.y)}年${P2(a.date.m)}月${P2(a.date.d)}日`:'　　年　　月　　日',
-    dec:{name:String(d.name||'').trim(),addr:String(d.addr||'').trim(),birth:slotDate(d.birth),death:free||slotDate(d.death),deathFree:!!free},
-    appl:{addr:String(a.applicantAddr||'').trim(),name:String(a.applicantName||'').trim(),tel:a.applicantTel.trim(),rel:first?cleanRel(first.rel):''},
-    agent:c.mode==='agent'?{addr:[String(c.officeAddr||'').trim()+String(c.officeAddr2||'').trim(),c.office].map(v=>String(v||'').trim()).filter(Boolean).join('　'),name:[c.qual,c.name].map(v=>String(v||'').trim()).filter(Boolean).join('　'),tel:a.agentTel.trim(),rel:a.agentRel}:null,
+    dec:{name:String(d.name||'').trim(),addr:String(d.addr||'').trim(),addr2:String(d.addr2||'').replace(/\s+$/,''),birth:slotDate(d.birth),death:free||slotDate(d.death),deathFree:!!free},
+    appl:{addr:first?String(first.p.addr||'').trim():'',addr2:first?String(first.p.addr2||'').replace(/\s+$/,''):'',name:String(a.applicantName||'').trim(),tel:a.applicantTel.trim(),rel:first?cleanRel(first.rel):''},
+    agent:c.mode==='agent'?{addr:String(c.officeAddr||'').trim(),addr2:String(c.officeAddr2||'').replace(/\s+$/,''),office:String(c.office||'').trim(),name:[c.qual,c.name].map(v=>String(v||'').trim()).filter(Boolean).join('　'),tel:a.agentTel.trim(),rel:a.agentRel}:null,
     purpose:a.purpose,purposeOther:a.purposeOther.trim(),
     copies:String(a.copies||'').trim(),delivery:a.delivery,
     realty:a.realty,realtyText:a.realtyText.trim(),officeType:a.officeType,
@@ -2440,25 +2498,32 @@ function appData(){
   };
 }
 // 様式の各欄に入る文字列（Word・プレビュー共通）
+// 2段目以降：1段目の住所の頭（見出しの幅）にそろえ、入力した先頭の空白の分だけさらに右へ
+function addrLines(head,l1,more){
+  const ind='　'.repeat([...head].length);
+  return [head+l1,...more.filter(v=>String(v||'').trim()).map(v=>ind+v)];
+}
 function appTexts(D){
   const ag=D.agent;
   return {
     date:D.dateSlot,
     decName:'氏　　　名　'+D.dec.name,
-    decAddr:'最後の住所　'+D.dec.addr,
+    decAddr:addrLines('最後の住所　',D.dec.addr,[D.dec.addr2]),
     decBirthSlot:D.dec.birth||'　　　　年　　月　　日',
     decDeath:D.dec.death?(D.dec.deathFree?'死亡年月日　'+D.dec.death:'死亡年月日'+D.dec.death):'死亡年月日　　　　年　　月　　日',
-    applAddr:'住所'+(D.appl.addr?'　'+D.appl.addr:''),
+    applAddr:(D.appl.addr||D.appl.addr2)?addrLines('住所　',D.appl.addr,[D.appl.addr2]):['住所'],
     applName:'氏名'+(D.appl.name?'　'+D.appl.name:''),
     applTel:D.appl.tel?'連絡先　'+D.appl.tel:'連絡先　　　　－　　　－　　　　',
     applRel:'被相続人との続柄　（'+centerIn(D.appl.rel,8)+'）',
-    agAddr:'住所（事務所）'+(ag&&ag.addr?'　'+ag.addr:''),
+    agAddr:ag&&(ag.addr||ag.addr2||ag.office)?addrLines('住所（事務所）　',ag.addr,[ag.addr2,ag.office]):['住所（事務所）'],
     agName:'氏名'+(ag&&ag.name?'　'+ag.name:''),
     agTel:ag&&ag.tel?'連絡先　'+ag.tel:'連絡先　　　　－　　　－　　　　',
     other:'その他（'+padEndFW(D.purpose.other?D.purposeOther:'',22)+'）',
     copies:P2(D.copies)+'通',
     realty:D.realty==='yes'?D.realtyText:'',
-    bureau:'　　　　'+(D.bureau?D.bureau+D.bureauKind:'　　（地方）法務局')+'　　　　'+(D.bureau?branchText(D):'支局・出張所')+'　　　　宛',
+    // 提出先が入っていれば「〇〇　法務局　　　〇〇　出張所　　　宛」を用紙の中央に。未入力なら様式どおりの空欄
+    bureau:D.bureau?[`${D.bureau}　${D.bureauKind}`,D.branchKind==='本局'?'本局':(D.branch?`${D.branch}　${D.branchKind}`:''),'宛'].filter(Boolean).join('　　　'):'　　　　　　（地方）法務局　　　　　　支局・出張所　　　　　　　　宛',
+    bureauCenter:!!D.bureau,
     checks:{
       '法定代理人':!!ag&&ag.rel==='houtei','委任による代理人':!!ag&&ag.rel==='ninni',
       '不動産登記':D.purpose.fudosan,'預貯金の払戻し':D.purpose.yokin,'相続税の申告':D.purpose.zei,'年金等':D.purpose.nenkin,'その他':D.purpose.other,
@@ -2471,7 +2536,7 @@ function appTexts(D){
 }
 // document.xml へ書き込み（様式の文字・罫線・書式はそのまま、空欄にだけ入れる）
 function fillAppXml(x,T,preview){
-  const t=v=>XE(v);
+  const t=v=>Array.isArray(v)?v.map(XE).join('</w:t><w:br/><w:t xml:space="preserve">'):XE(v);
   const one=(from,to)=>{const i=x.indexOf(from);if(i<0)throw new Error('様式の該当箇所が見つかりません：'+from);x=x.slice(0,i)+to+x.slice(i+from.length);};
   const multi=(from,tos)=>{const idx=[];let i=-1;while((i=x.indexOf(from,i+1))>=0)idx.push(i);if(idx.length!==tos.length)throw new Error('様式の該当箇所が見つかりません：'+from);
     for(let k=idx.length-1;k>=0;k--)x=x.slice(0,idx[k])+tos[k]+x.slice(idx[k]+from.length);};
@@ -2491,7 +2556,15 @@ function fillAppXml(x,T,preview){
     const pid='w14:paraId="49D3F1E0"';const i=x.indexOf(pid);
     if(i>=0){const j=x.indexOf('</w:pPr></w:p>',i);if(j>=0)x=x.slice(0,j)+'</w:pPr><w:r><w:t xml:space="preserve">'+t(T.realty)+'</w:t></w:r></w:p>'+x.slice(j+'</w:pPr></w:p>'.length);}
   }
-  one('>　　　　　　（地方）法務局　　　　　　支局・出張所　　　　　　　　宛</w:t>','>'+t(T.bureau)+'</w:t>');
+  {const from='>　　　　　　（地方）法務局　　　　　　支局・出張所　　　　　　　　宛</w:t>',i=x.indexOf(from);
+    if(i<0)throw new Error('様式の該当箇所が見つかりません：提出先');
+    x=x.slice(0,i)+'>'+t(T.bureau)+'</w:t>'+x.slice(i+from.length);
+    if(T.bureauCenter){   // この段落を中央揃えに
+      const ps=x.lastIndexOf('<w:p ',i),pe=x.indexOf('</w:pPr>',ps);
+      if(ps>=0&&pe>=0&&pe<i){let pp=x.slice(ps,pe).replace(/<w:jc [^>]*\/>/g,'').replace(/<w:ind [^>]*\/>/g,'');
+        pp=pp.replace(/(<w:spacing [^>]*\/>)/,'$1<w:jc w:val="center"/>');if(!pp.includes('<w:jc '))pp=pp.replace('<w:pPr>','<w:pPr><w:jc w:val="center"/>');
+        x=x.slice(0,ps)+pp+x.slice(pe);}
+    }}
   // チェックボックス（様式のチェックボックスをオンにする）
   let out='',pos=0;const re=/<w:sdt>[\s\S]*?<\/w:sdt>/g;let m;
   while((m=re.exec(x))){
@@ -2509,7 +2582,7 @@ function fillAppXml(x,T,preview){
 }
 const NOTE_NENKIN='※年金等手続の給付対象者は、法定相続人に限られません。各手続において一覧図の写し以外で必要となる書類はあらかじめ提出先機関におたずねください。';
 function renderApp(){
-  const D=appData(),T=appTexts(D),e=esc;
+  const D=appData(),T=appTexts(D),e=esc,eL=a=>a.map(v=>esc(v).replace(/ /g,'&nbsp;')).join('<br>');
   const cb=k=>T.checks[k]?'☑':'☐';
   document.getElementById('appPage').innerHTML=`
     <p class="form-no" style="text-align:right">別記第１号様式</p>
@@ -2518,16 +2591,16 @@ function renderApp(){
     <table class="main">
       <colgroup><col style="width:21%"><col style="width:35%"><col style="width:16%"><col style="width:28%"></colgroup>
       <tr><td>申出年月日</td><td>令和${e(T.date)}</td><td class="small">法定相続情報番号</td><td style="text-align:center">－　　　－</td></tr>
-      <tr><td>被相続人の表示</td><td colspan="3">${e(T.decName)}<br>${e(T.decAddr)}<br>生年月日${e(T.decBirthSlot)}<br>${e(T.decDeath)}</td></tr>
-      <tr><td>申出人の表示</td><td colspan="3">${e(T.applAddr)}<br>${e(T.applName)}<br>${e(T.applTel)}<br>${e(T.applRel)}</td></tr>
-      <tr><td>代理人の表示</td><td colspan="3">${e(T.agAddr)}<br>${e(T.agName)}<br>${e(T.agTel)}<br>申出人との関係　　${cb('法定代理人')}法定代理人　　${cb('委任による代理人')}委任による代理人</td></tr>
+      <tr><td>被相続人の表示</td><td colspan="3">${e(T.decName)}<br>${eL(T.decAddr)}<br>生年月日${e(T.decBirthSlot)}<br>${e(T.decDeath)}</td></tr>
+      <tr><td>申出人の表示</td><td colspan="3">${eL(T.applAddr)}<br>${e(T.applName)}<br>${e(T.applTel)}<br>${e(T.applRel)}</td></tr>
+      <tr><td>代理人の表示</td><td colspan="3">${eL(T.agAddr)}<br>${e(T.agName)}<br>${e(T.agTel)}<br>申出人との関係　　${cb('法定代理人')}法定代理人　　${cb('委任による代理人')}委任による代理人</td></tr>
       <tr><td>利用目的</td><td colspan="3">${cb('不動産登記')}不動産登記　　${cb('預貯金の払戻し')}預貯金の払戻し　${cb('相続税の申告')}相続税の申告<br>${cb('年金等')}年金等手続　<span class="small">${NOTE_NENKIN}</span><br>${cb('その他')}${e(T.other)}</td></tr>
       <tr><td>必要な写しの<br>通数・交付方法</td><td colspan="3">${e(T.copies)}　（${cb('窓口で受取')}窓口で受取　${cb('郵送')}郵送）<div class="small">　　※郵送の場合、送付先は申出人（又は代理人）の表示欄にある住所（事務所）となる。</div></td></tr>
       <tr><td>被相続人名義の<br>不動産の有無</td><td>${cb('有')}有<br>${cb('無')}無</td><td colspan="2" style="border-left:0.8pt dashed #000"><span class="small">（有の場合、不動産所在事項又は不動産番号を以下に記載する。）</span><br>${e(T.realty)}</td></tr>
       <tr><td>申出先登記所の<br>種別</td><td colspan="3">${cb('被相続人の本籍地')}被相続人の本籍地　　${cb('被相続人の最後の住所地')}被相続人の最後の住所地<br>${cb('申出人の住所地')}申出人の住所地　　${cb('被相続人名義の不動産の所在地')}被相続人名義の不動産の所在地</td></tr>
       <tr><td colspan="4"><p class="decl">上記被相続人の法定相続情報一覧図を別添のとおり提出し、上記通数の一覧図の写しの交付を申出します。交付を受けた一覧図の写しについては、被相続人の死亡に起因する相続手続及び年金等手続においてのみ使用し、その他の用途には使用しません。</p>
         <p class="decl">申出の日から３か月以内に一覧図の写し及び返却書類を受け取らない場合は、廃棄して差し支えありません。</p>
-        <p style="margin-top:2mm">${e(T.bureau)}</p></td></tr>
+        <p style="margin-top:2mm;${T.bureauCenter?'text-align:center':''}">${e(T.bureau)}</p></td></tr>
       <tr><td colspan="4" class="small">※受領確認書類(不動産登記規則第２４７条第６項の規定により返却する書類に限る。)<br>戸籍（個人）全部事項証明書（　　通）、除籍事項証明書（　　通）　戸籍謄本（　　通）<br>除籍謄本（　　通）、改製原戸籍謄本（　　通）　戸籍の附票の写し（　　通）<br>戸籍の附票の除票の写し（　　通）住民票の写し（　　通）、住民票の除票の写し（　　通）</td></tr>
     </table>
     <table class="stamp" style="margin-top:3mm"><tr>${['受領','確認１','確認２','スキャナ・入力','交付','受取'].map(t=>`<td>${t}</td>`).join('')}</tr></table>
@@ -2606,6 +2679,8 @@ const previewEl=document.querySelector('.preview');
 document.querySelectorAll('.tabs [data-tab]').forEach(b=>b.addEventListener('click',()=>{
   previewEl.dataset.tab=b.dataset.tab;
   document.querySelectorAll('.tabs [data-tab]').forEach(x=>x.setAttribute('aria-selected',String(x===b)));
+  const was=formMode._last||'zu',now=formMode();formMode._last=now;
+  if(was!==now){disarm();renderForm();document.querySelector('.panel').scrollTop=0;}
   if(b.dataset.tab==='app')renderApp();
   if(b.dataset.tab==='att')renderAtt();
 }));
@@ -2699,12 +2774,12 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
 <li><b>申出書</b>（法定相続情報一覧図の保管及び交付の申出書）：一覧図と一緒に法務局へ出す書類です。法務局の様式（Wordファイル）に、入力した内容が書き込まれます。</li>
 <li><b>添付資料のチェックシート</b>：質問に答えると、「だれの」「どのような」戸籍や住民票を集めればよいかの一覧と、簡単な相続関係図、相続の手続きに関わる方の人数ができあがります。故人の死亡後に相続人が亡くなっている場合（数次相続）も、関係図と人数の目安を確認できます。</li>
 </ul>
-<p>一覧図のために入力した内容は、申出書にも自動で入ります。同じ内容を2回入力する必要はありません。</p>
+<p>被相続人・申出人・代理人（作成者）の情報は、一覧図と申出書で共通です。どちらの入力欄で直しても、もう一方に反映されます。同じ内容を2回入力する必要はありません。</p>
       <h3 id="m-screen">2. 画面の見かた</h3>
 <ul>
-<li><b>左側</b>：入力する場所です。上から順に入力していきます。</li>
+<li><b>左側</b>：入力する場所です。上から順に入力していきます。右側で<span class="btnlike">一覧図</span>または<span class="btnlike">添付資料</span>のタブを開いているときは一覧図の入力欄、<span class="btnlike">申出書</span>のタブを開いているときは申出書の入力欄が表示されます。</li>
 <li><b>右側</b>：できあがりの見本（プレビュー）です。入力するとすぐに変わります。</li>
-<li><b>右側の上のタブ</b>：<span class="btnlike">一覧図</span><span class="btnlike">申出書</span><span class="btnlike">添付資料</span>を押すと、表示を切り替えられます。</li>
+<li><b>右側の上のタブ</b>：<span class="btnlike">一覧図</span><span class="btnlike">申出書</span><span class="btnlike">添付資料</span>を押すと、表示を切り替えられます。タブの右端の<span class="btnlike">保存・読込</span>ボタンで、入力内容の保存と読み込みができます。</li>
 <li><b>左側のいちばん上</b>：<span class="btnlike">↶ 元に戻す</span><span class="btnlike">↷ やり直し</span><span class="btnlike">？ 使い方</span><span class="btnlike">すべてクリア</span>のボタンがあります。下へ進んでも、この列はいつも上に表示されます。</li>
 </ul>
 <p>スマートフォンなど画面がせまいときは、入力する場所が上、見本が下に並びます。</p>
@@ -2717,7 +2792,7 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
 <li>亡くなった方（被相続人）、配偶者、ほかの相続人の情報を入力します。</li>
 <li>法務局へ申し出る人に「申出人として表示する」のチェックを入れます。</li>
 <li>作成者（書類を作った人）を入力します。</li>
-<li>「申出書」の欄を入力します。提出先の法務局は自動で入ります。</li>
+<li>右側の<span class="btnlike">申出書</span>タブを開くと、左側が申出書の入力欄に切り替わります。申出書だけの項目を入力します。提出先の法務局は自動で入ります。</li>
 <li>見本を確かめてから、一覧図を印刷（またはPDF・Excel）し、申出書をWordで出力します。</li>
 <li>必要なら、入力内容を保存しておきます。</li>
 </ol>
@@ -2864,12 +2939,15 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
 <li>出力したExcelは、遺産分割協議書ツール（v152以降）で相続人の情報として読み込めます。</li>
 </ul>
       <h3 id="m-app">13. 申出書（入力）</h3>
-<p>亡くなった方・申出人・代理人の情報は、ここまでの入力から自動で入ります。ここでは、申出書だけの項目を入れます。</p>
+<p>右側で<span class="btnlike">申出書</span>のタブを開くと、左側が申出書の入力欄に切り替わります。上から「被相続人」「申出人」「代理人」「申出書」の順に並んでいます。</p>
+<div class="tip">「被相続人」「申出人」「代理人」の欄は、一覧図の入力欄と共通です。どちらで直しても、もう一方に反映されます。</div>
 <ul>
-<li><b>申出年月日</b>：法務局へ申し出る日です。</li>
-<li><b>申出人の氏名・住所</b>：一覧図で申出人にした人の内容が最初から入っています（住所は2段目までつなげて入ります）。違う場合はここで直せます。一覧図の内容に戻したいときは<span class="btnlike">一覧図の内容に戻す</span>を押します。</li>
+<li><b>被相続人</b>：氏名・生年月日・死亡年月日・最後の住所（1段目・2段目）です。申出先を「本籍地」にした場合は、最後の本籍も表示されます（提出先の判定に使います）。</li>
+<li><b>申出人</b>：一覧図に入力した相続人の中から選びます。選んだ人は、一覧図でも「（申出人）」と表示されます。氏名・住所（1段目・2段目）を直すと、一覧図のその相続人の氏名・住所も同じになります。本人確認書類と同じ住所・氏名にしてください。</li>
 <li><b>連絡先</b>：申出人（代理人がいる場合は代理人も）の電話番号を入れます。</li>
-<li><b>申出人との関係</b>：代理人がいる場合に、<span class="btnlike">委任による代理人</span>か<span class="btnlike">法定代理人</span>を選びます。代理人の住所には、作成者欄の事務所の住所（2段目まで）が入ります。</li>
+<li><b>代理人</b>：作成者の形式（申出人本人／資格者代理人）、資格・氏名・事務所の住所は一覧図の作成者欄と共通です。資格者代理人の場合は、<span class="btnlike">委任による代理人</span>か<span class="btnlike">法定代理人</span>を選びます。</li>
+<li><b>申出年月日</b>：法務局へ申し出る日です。</li>
+<li><b>住所の2段目</b>：被相続人・申出人・代理人の住所の2段目に入力すると、申出書では一段下げて、1段目の住所の書き出しにそろえて記載します。先頭に空白（スペース）を入れると、その分だけ右にずらせます。代理人の事務所名は、住所の次の段に記載します。被相続人の住所の2段目は、一覧図では1段目に続けて記載します。</li>
 <li><b>利用目的</b>：一覧図の写しを何に使うかを選びます（複数選べます）。「その他」の場合は、「株式の相続手続」のように具体的に書いてください。</li>
 <li><b>必要な通数・交付方法</b>：一覧図の写しが何通必要かと、窓口で受け取るか郵送かを選びます。</li>
 <li><b>被相続人名義の不動産</b>：有る場合は、不動産所在事項または不動産番号を1つ書きます。</li>
@@ -2879,7 +2957,7 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
 <ul>
 <li>種別に対応する住所（本籍地なら最後の本籍、最後の住所地なら最後の住所、申出人の住所地なら申出人の住所、不動産所在地なら不動産所在事項）から、管轄の法務局（不動産登記の管轄）が自動で入ります。</li>
 <li>町名で管轄が分かれる場所や、区が書かれていない場合などは、候補から選んでください。</li>
-<li>自動で入った内容は手で直せます。直したあとで自動の内容に戻すときは<span class="btnlike">自動判定に戻す</span>を押します。本局に出す場合は、種別で「本局」を選ぶと「〇〇法務局　本局　宛」と記載されます。</li>
+<li>自動で入った内容は手で直せます。直したあとで自動の内容に戻すときは<span class="btnlike">自動判定に戻す</span>を押します。本局に出す場合は、種別で「本局」を選ぶと「〇〇　法務局　　　本局　　　宛」と記載されます。提出先が入っていると、申出書の宛名（「〇〇　法務局　　　〇〇　出張所　　　宛」）は用紙の中央にそろえて記載されます。</li>
 <li>支局・出張所名の下に、郵送用の提出先の住所（郵便番号付き）が表示されます。<span class="btnlike">〒・住所をコピー</span>で住所を、<span class="btnlike">宛名（御中）付きでコピー</span>で宛名まで含めてコピーできます。</li>
 <li>その下に、法務局の「法定相続情報の管轄区域一覧」と「所在地・案内図」のページのアドレスが表示されます。判定に使った住所が管轄区域に含まれているか、ご自身の目でも確かめてください。</li>
 </ul>
@@ -2893,7 +2971,7 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
 </ol>
 <div class="tip">申出書は、法務局の様式ファイルの空欄に書き込む形で作られます。チェック欄はWordの中でクリックして付け外しもできます。見本の表示はパソコンの書体によって改行の位置がわずかに違うことがあるため、最終確認はWordの印刷プレビューで行ってください。</div>
       <h3 id="m-save">15. 保存と読み込み</h3>
-<p>入力した内容は、保存しないとページを閉じたときに消えます。左側の「データの保存・読込」から保存してください。一覧図・申出書の入力と、添付資料の質問の答えがまとめて保存されます。</p>
+<p>入力した内容は、保存しないとページを閉じたときに消えます。右側のタブ（一覧図・申出書・添付資料）の右端にある<span class="btnlike">保存・読込</span>ボタンを押すと、保存・読込の画面が開きます。今見ているタブはそのままです。一覧図・申出書の入力と、添付資料の質問の答えがまとめて保存されます。</p>
 <ul>
 <li><b>保存名</b>：「（亡くなった方の氏名）一覧図」が自動で入ります。必要なら直してください。ファイル名にもこの名前が使われます（例：山田太郎一覧図.json）。</li>
 <li><b>ファイルに保存</b>：パソコンにファイルとして保存します。手元のHTMLファイルをChromeまたはEdgeで開いている場合は、保存先のフォルダを選ぶ画面が開きます（前回選んだフォルダから始まります）。それ以外の環境（リンクから開いたページ、Safari、Firefoxなど）では、ブラウザのダウンロード先に保存されます。<span class="btnlike">ファイルを読み込む</span>で元に戻せます。</li>
@@ -2931,7 +3009,7 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
 <dt>保存の前に確認の画面が出る</dt><dd>リンクから開いたページでファイルを保存すると、確認の画面が出ます。内容を確かめて許可してください。</dd>
 <dt>保存先を選ぶ画面が出ない</dt><dd>保存先を選べるのは、手元のHTMLファイルをChromeまたはEdgeで開いた場合です。</dd>
 <dt>ブラウザに保存したデータが見当たらない</dt><dd>保存したときと違うパソコン・ブラウザ・開き方（リンクか、パソコンのファイルか）になっていないか確かめてください。持ち運ぶ場合は「ファイルに保存」をお使いください。</dd>
-<dt>申出人が申出書に入らない</dt><dd>一覧図の入力で、申出人になる人の「申出人として表示する」にチェックが入っているか確かめてください。</dd>
+<dt>申出人が申出書に入らない</dt><dd>申出書タブの「申出人」の欄で、相続人の中から申出人を選んでください（一覧図の入力で「申出人として表示する」にチェックしても同じです）。</dd>
 <dt>提出先の住所が「登録されていません」と表示される</dt><dd>一部の庁（秋田地方法務局大曲支局、長崎地方法務局諫早支局）は住所を登録していません。表示されるリンクから法務局のページで確認してください。</dd>
 <dt>「被代襲者の死亡日が、被相続人の死亡日より後になっています」と表示される</dt><dd>死亡日の入力が正しいか確かめてください。正しい場合は、代襲相続ではなく数次相続です。1枚の一覧図では表せないため、専門家または法務局へご相談ください。</dd>
 <dt>手続きに関わる方の人数が「○名以上」と表示される</dt><dd>故人の死亡後に亡くなった方の相続人の中に、さらに後から亡くなった方がいるためです。その先の相続人はこのツールでは数えられないため、人数が確定できません。</dd>
@@ -2977,6 +3055,15 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
   dlg.querySelectorAll('.man-toc a').forEach(a=>a.addEventListener('click',e=>{
     e.preventDefault();const t=dlg.querySelector(a.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth',block:'start'});
   }));
+})();
+</script>
+<script>
+(function(){
+  const dlg=document.getElementById('dataDlg');
+  const open=()=>{if(typeof dlg.showModal==='function')dlg.showModal();else dlg.setAttribute('open','');};
+  document.getElementById('dataBtn').addEventListener('click',open);
+  document.getElementById('dataClose').addEventListener('click',()=>dlg.close?dlg.close():dlg.removeAttribute('open'));
+  dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close();});
 })();
 </script>
 </body>
