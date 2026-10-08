@@ -305,17 +305,17 @@ dialog.manual::backdrop{background:rgba(20,28,36,.55)}
     <datalist id="rel-sib"><option>兄</option><option>姉</option><option>弟</option><option>妹</option></datalist>
     <datalist id="rel-gk"><option>孫・代襲者</option><option>甥・代襲者</option><option>姪・代襲者</option></datalist>
   </aside>
-  <main class="preview" data-tab="zu">
+  <main class="preview" data-tab="att">
     <div class="tabs" role="tablist" aria-label="プレビューの切り替え">
-      <button type="button" role="tab" id="tab-zu" aria-selected="true" data-tab="zu">一覧図</button>
+      <button type="button" role="tab" id="tab-att" aria-selected="true" data-tab="att">集める戸籍類の確認</button>
+      <button type="button" role="tab" id="tab-zu" aria-selected="false" data-tab="zu">一覧図</button>
       <button type="button" role="tab" id="tab-app" aria-selected="false" data-tab="app">申出書</button>
-      <button type="button" role="tab" id="tab-att" aria-selected="false" data-tab="att">添付資料</button>
       <button type="button" class="tab-data" id="dataBtn" aria-haspopup="dialog">保存・読込</button>
     </div>
     <div class="toolbar">
       <div class="btn-row" style="margin:0;flex:none"><button type="button" class="btn-print only-zu" id="printBtn">A4印刷 / PDF保存</button><button type="button" class="btn-line only-zu" id="xlsxBtn">Excelで出力</button><button type="button" class="btn-line only-app" id="docxBtn">Wordで出力</button><button type="button" class="btn-print only-att" id="attPrintBtn">チェックシートを印刷</button></div>
       <label class="att-opt only-att"><input type="checkbox" id="attKoiki">戸籍の広域交付制度の解説も印刷する</label>
-      <p class="hint only-zu">印刷画面では「用紙：A4」「余白：なし」「倍率：100%」を選んでください。</p><p class="hint only-app">申出書は法務局の様式（Word）に記入して出力します。印刷はWordで開いて行ってください。</p><p class="hint only-att">質問に答えると、戸籍集めに必要な書類の一覧ができあがります。必要な方だけ印刷してお使いください（一覧図の入力内容とは連動しません）。</p>
+      <p class="hint only-zu">印刷画面では「用紙：A4」「余白：なし」「倍率：100%」を選んでください。</p><p class="hint only-app">申出書は法務局の様式（Word）に記入して出力します。印刷はWordで開いて行ってください。</p><p class="hint only-att">質問に答えると、戸籍集めに必要な書類の一覧ができあがります。必要な方だけ印刷してお使いください。最後の質問で「はい」を選ぶと、回答を一覧図の入力欄に反映できます。<br><b>戸籍がすでにそろっている場合などは、質問に答えずに、上の「一覧図」タブから直接作成することもできます。</b></p>
     </div>
     <div class="status only-zu" id="status" role="status"></div>
     <p class="hint only-zu" id="xlsxMsg" role="status" style="max-width:720px;width:100%"></p>
@@ -685,7 +685,7 @@ function renderForm(){
         <p class="note">図では、共通の親「${state.halfSib.common==='母'?'（母）':'（父）'}」を真ん中に、その上に${state.halfSib.common==='母'?'（父）':'（母）'}、下に${state.halfSib.common==='母'?'（男）':'（女）'}を並べ、それぞれ二重線でつなぎます。各兄弟姉妹で、父母の両方が同じか、一方のみ同じかを選んでください。</p>`:''}
       ${entryCards('siblings','兄弟姉妹','rel-sib')}</fieldset>`;
   }
-  form.innerHTML=`
+  form.innerHTML=attNoticeHtml()+`
   <fieldset><legend><span>相続人のパターン</span><span class="leg-btns"><button type="button" class="btn-sec" data-act="secundo" data-sec="pattern" title="この欄をひとつ前に戻す">↶ 元に戻す</button><button type="button" class="btn-sec" data-act="secredo" data-sec="pattern" title="この欄をやり直す">↷ やり直し</button><button type="button" class="btn-clear" data-act="clear" data-sec="pattern" data-label="クリア">クリア</button></span></legend>
     ${fSeg('pattern','',[['children','配偶者・子'],['parents','配偶者・親'],['siblings','配偶者・兄弟姉妹']],true)}
     <p class="note">配偶者がいない場合は、下の「配偶者」のチェックを外してください（子のみ・親のみなど）。</p>
@@ -933,7 +933,7 @@ document.getElementById('clearAll').addEventListener('click',e=>{
   if(!confirmTwice(e.currentTarget))return;
   checkpoint('clearAll',true,ALL_SECS);
   for(const k of ['pattern','deceased','spouse','creator','app'])CLEAR[k]();
-  state.attq={ans:{}};
+  state.attq={ans:{}};attNotice=null;
   state.hasSpouse=true;state.children=[];state.siblings=[];
   state.parents={father:{on:true,...person('父')},mother:{on:true,...person('母')}};
   if(typeof caseNameEdited!=='undefined')caseNameEdited=false;
@@ -956,6 +956,7 @@ form.addEventListener('click',e=>{
     copyText(txt).then(ok=>{const m=document.getElementById('kkCopied');if(m){m.textContent=ok?'コピーしました':'コピーできませんでした。住所を選択してコピーしてください';clearTimeout(m._t);m._t=setTimeout(()=>m.textContent='',3000);}});
     return;
   }
+  if(b.dataset.act==='attNoticeClose'){attNotice=null;renderForm();return;}
   if(b.dataset.act==='secundo'){secMove(b.dataset.sec,SU,SR,'ひとつ前に戻しました');return;}
   if(b.dataset.act==='secredo'){secMove(b.dataset.sec,SR,SU,'やり直しました');return;}
   checkpoint('act',true,[(b.dataset.act==='resetAppl'||b.dataset.act==='bureauAuto')?'app':'heirs']);
@@ -1576,7 +1577,7 @@ function applyData(d){
   const n=mergeDef(DEFAULTS,d);
   n.children=Array.isArray(d.children)?d.children.map(normEntry):[];
   n.siblings=Array.isArray(d.siblings)?d.siblings.map(normEntry):[];
-  n.attq=d.attq&&isObj(d.attq.ans)?{ans:{...d.attq.ans}}:{ans:{}};
+  n.attq=d.attq&&isObj(d.attq.ans)?{ans:{...d.attq.ans},applied:typeof d.attq.applied==='string'?d.attq.applied:''}:{ans:{}};
   for(const k of Object.keys(state))delete state[k];
   Object.assign(state,n);
   renderForm();draw();
@@ -1962,7 +1963,8 @@ const ATTQ={
   sib:{t:'故人に兄弟姉妹はいましたか？',h:'父母の一方のみが同じ兄弟姉妹（異母・異父の兄弟姉妹）や、亡くなった方も含めて答えてください。',type:'yn',next:a=>a.sib?'sibN':'later'},
   sibN:{t:'兄弟姉妹は何人いましたか？',h:'亡くなった方も含めた人数です。',type:'num',next:()=>'sibHalf'},
   sibHalf:{t:'その中に、父母の一方のみが同じ兄弟姉妹（異母・異父の兄弟姉妹）はいますか？',type:'yn',next:a=>a.sibHalf?'sibHalfN':'sibDead'},
-  sibHalfN:{t:'父母の一方のみが同じ兄弟姉妹は何人ですか？',type:'num',max:a=>a.sibN,next:()=>'sibDead'},
+  sibHalfN:{t:'父母の一方のみが同じ兄弟姉妹は何人ですか？',type:'num',max:a=>a.sibN,next:()=>'sibHalfP'},
+  sibHalfP:{t:'父母の一方のみが同じ兄弟姉妹と、故人に共通している親（再婚した親）はどちらですか？',h:'例：父が再婚して、前の結婚（または再婚後）の子がいる場合は「父」です。父と母の両方が再婚していて分からない場合は、専門家へご相談ください。',type:'choice',opts:[['父','父'],['母','母']],next:()=>'sibDead'},
   sibDead:{t:'兄弟姉妹の中に、故人より先に亡くなった方はいますか？',h:'故人と同じ日に亡くなった方も「先に亡くなった方」に含めて答えてください。',type:'yn',next:a=>a.sibDead?'sibDeadN':'later'},
   sibDeadN:{t:'故人より先に亡くなった兄弟姉妹は何人ですか？',type:'num',max:a=>a.sibN,next:a=>(a.sibHalf&&+a.sibHalfN>0)?'sibDeadHalfN':'nk:1'},
   sibDeadHalfN:{t:'先に亡くなった兄弟姉妹のうち、父母の一方のみが同じ方は何人ですか？',h:'いない場合は 0 と入れてください。',type:'num',min:0,max:a=>Math.min(+a.sibDeadN||0,+a.sibHalfN||0),next:()=>'nk:1'},
@@ -1975,9 +1977,12 @@ const ATTQ={
   laterMo:{t:'母は、故人が亡くなった後に亡くなりましたか？',type:'yn',skip:(a,R)=>!(R.kind==='parents'&&R.mother),next:()=>'laterSib'},
   laterSib:{t:'故人の相続人である兄弟姉妹のうち、故人が亡くなった後に亡くなった方は何人ですか？',h:'いない場合は 0 と入れてください。',type:'num',min:0,max:a=>laterMax('sibAlive'),skip:(a,R)=>!(R.kind==='siblings'&&R.sibAlive>0),next:()=>'laterNeph'},
   laterNeph:{t:'先に亡くなった兄弟姉妹に代わって相続人になった甥・姪（代襲相続人）のうち、故人が亡くなった後に亡くなった方は何人ですか？',h:'ここでいう甥・姪は、先に亡くなった兄弟姉妹の子として答えた方です。故人の死亡後に亡くなった兄弟姉妹の子は含みません（代襲相続人ではなく、亡くなった兄弟姉妹の相続人になります）。いない場合は 0 と入れてください。',type:'num',min:0,max:a=>laterMax('nephew'),skip:(a,R)=>!(R.kind==='siblings'&&R.nephew>0),next:()=>'mSp:1'},
-  who:{t:'法務局への申出（手続き）は、どなたが行いますか？',type:'choice',opts:[['self','相続人本人（申出人）'],['pro','行政書士などの専門家（資格者代理人）'],['family','相続人の親族（委任を受けた代理人）']],next:()=>'addr'},
+  who:{t:'法務局への申出（手続き）は、どなたが行いますか？',type:'choice',opts:[['self','相続人本人（申出人）'],['pro','行政書士などの専門家（資格者代理人）']],next:()=>'addr'},
   addr:{t:'一覧図に、相続人の住所を記載しますか？',h:'住所の記載は任意です。記載する場合は、住民票などが必要になります。',type:'yn',next:()=>'mail'},
-  mail:{t:'一覧図の写しは、郵送で受け取りますか？',type:'yn',next:()=>null}
+  mail:{t:'一覧図の写しは、郵送で受け取りますか？',type:'yn',next:()=>'apply'},
+  apply:{t:'この質問の回答を、一覧図の入力欄に反映させますか？',get h(){const b=attApplyBlock(attResult());
+    return '「はい」を選ぶと、相続人のパターン・配偶者の有無・相続人の欄の人数・住所を記載するか・作成者の形式・写しの交付方法を、一覧図と申出書の入力欄に反映します。入力済みの氏名などはできるだけ残します。反映したあとでも「元に戻す」で戻せます。'+(b.length?'【ご注意】'+b.join(' ')+'（相続人の欄以外は反映します）':'');},
+    type:'choice',opts:[['yes','はい（一覧図に反映させる）'],['no','いいえ（一覧図に反映させない）']],next:()=>null}
 };
 const numA=v=>Math.max(0,parseInt(v,10)||0);
 // 先に亡くなった子（兄弟姉妹）ごとに、孫（甥・姪）の有無と人数を聞く（i人目）
@@ -2040,7 +2045,7 @@ function attWalk(){
   while(id){const q=attQ(id);if(!q)return {path,cur:null};
     const gR=()=>attResult({path:path.slice(),cur:id});
     if(q.skip&&q.skip(a,gR())){id=q.next(a,gR);continue;}   // この場合は聞かない質問
-    if(!(id in a))return {path,cur:id};path.push(id);id=q.next(a,()=>attResult({path:path.slice(),cur:null}));}
+    if(!(id in a)||(q.type==='choice'&&!q.opts.some(o=>o[0]===a[id])))return {path,cur:id};path.push(id);id=q.next(a,()=>attResult({path:path.slice(),cur:null}));}
   return {path,cur:null};
 }
 // 数次相続の人数の上限（その立場の相続人の人数）
@@ -2072,7 +2077,7 @@ function attResult(W){
   if(R.kind==='none'&&on('grandparents')&&a.grandparents){R.kind='grandparents';}
   if(R.kind==='none'&&on('sibN')){
     R.sibDead=on('sibDeadN')?Math.min(n(a.sibDeadN),n(a.sibN)):0;R.sibAlive=Math.max(0,n(a.sibN)-R.sibDead);
-    R.half=on('sibHalf')&&!!a.sibHalf;R.sibHalfN=R.half&&on('sibHalfN')?Math.min(n(a.sibHalfN),n(a.sibN)):0;
+    R.half=on('sibHalf')&&!!a.sibHalf;R.sibHalfN=R.half&&on('sibHalfN')?Math.min(n(a.sibHalfN),n(a.sibN)):0;R.halfCommon=on('sibHalfP')&&a.sibHalfP==='母'?'母':'父';
     R.sibDeadHalf=on('sibDeadHalfN')?n(a.sibDeadHalfN):0;
     R.nephewList=[];for(let j=1;j<=R.sibDead;j++)R.nephewList.push(on('nk:'+j)&&a['nk:'+j]&&on('nkN:'+j)?n(a['nkN:'+j]):0);
     // 先に亡くなった甥・姪は相続人に数えない（兄弟姉妹の代襲は甥・姪まで）
@@ -2148,7 +2153,6 @@ function attDocs(){
   const g3='申出のときに必要な書類';
   add(g3,'申出人（手続きを行う相続人）の氏名・住所を確認できる公的書類（いずれか1つ）','―','運転免許証の表裏両面のコピー、マイナンバーカードの表面のコピー、住民票の写し など。コピーには「原本と相違ない」旨を書き、申出人（又は代理人）が記名します。この書類は返却されません。');
   if(R.who==='pro'){add(g3,'委任状（申出人から資格者代理人への委任）','―','');add(g3,'資格者代理人団体所定の身分証明書の写し等','―','');}
-  if(R.who==='family'){add(g3,'委任状（申出人から代理人への委任）','―','');add(g3,'申出人と代理人が親族であることが分かる戸籍','それぞれの本籍地の市区町村役場','上の書類で親族関係が分かる場合は必要ありません。');}
   add(g3,'法定相続情報一覧図','―','集めた戸籍などをもとに作成します（このツールで作成できます）。');
   add(g3,'法定相続情報一覧図の保管及び交付の申出書','―','このツールで作成できます。');
   if(R.mail)add(g3,'返信用封筒と郵便切手（レターパック（青・赤））','―','一覧図の写しと、返却される戸籍などを郵送で受け取るために必要です。封筒と切手では、返却される戸籍が入りきらなかったり、重さによって切手が足りなかったりすることがあるため、レターパック（ライト：青／プラス：赤）がお勧めです。');
@@ -2181,10 +2185,10 @@ function attCountHtml(R){
 // 質問中に表示する関係図。いまの質問がだれについてのものかを強調し、まだ分からない人は点線の仮の枠で示す
 function qTreeHtml(cur){
   const k=String(cur).split(':')[0];
-  if(['who','addr','mail'].includes(k))return '';   // 人に関係しない質問では図を出さない
+  if(['who','addr','mail','apply'].includes(k))return '';   // 人に関係しない質問では図を出さない
   const [i1,j1]=String(String(cur).split(':')[1]||'').split('.').map(Number),i=(i1||1)-1,j=(j1||1)-1;
   const {path}=attWalk(),R=attResult({path,cur});
-  if(['father','mother','grandparents','gpN','sib','sibN','sibHalf','sibHalfN','sibDead','sibDeadN','sibDeadHalfN','nk','nkN','nephewDead','ndN'].includes(k))R._qParents=true;
+  if(['father','mother','grandparents','gpN','sib','sibN','sibHalf','sibHalfN','sibHalfP','sibDead','sibDeadN','sibDeadHalfN','nk','nkN','nephewDead','ndN'].includes(k))R._qParents=true;
   let root=attTree(R);const ex=extra2Units(R);
   const all=[];const walk=u=>{for(const p of [u.a,u.b,u.prev])if(p)all.push({p,u});for(const c of u.kids||[])walk(c);};walk(root);ex.forEach(x=>walk(x.u));
   const find=f=>all.find(x=>f(x.p));
@@ -2206,7 +2210,7 @@ function qTreeHtml(cur){
     case 'mother':{const m=find(T('mo'));if(m)m.p.sub='ご存命でしたか？';pred=T('mo');break;}
     case 'grandparents':root={a:PH('祖父母','ご存命の方は？'),b:null,kids:[root]};break;
     case 'sib':case 'sibN':addKid(find(T('fa')),PH('兄弟姉妹',k==='sibN'?'何人？':'いましたか？'));break;
-    case 'sibHalf':case 'sibHalfN':case 'sibDead':case 'sibDeadN':case 'sibDeadHalfN':pred=T('sib','dsib');break;
+    case 'sibHalf':case 'sibHalfN':case 'sibHalfP':case 'sibDead':case 'sibDeadN':case 'sibDeadHalfN':pred=T('sib','dsib');break;
     case 'nk':case 'nkN':addKid(find(p=>p.tag==='dsib'&&p.idx===i),PH('甥・姪',k==='nkN'?'何人？':'いましたか？'));break;
     case 'nephewDead':pred=T('neph');break;
     case 'ndN':pred=p=>p.tag==='neph'&&p.pi===i;break;
@@ -2243,7 +2247,7 @@ function renderAttQ(){
       <p class="q-err" id="qErr" role="alert"></p>${qTreeHtml(cur)}`;
   }else{
     const R=attResult();
-    body=`<div class="q-step">質問は以上です</div>${attCountHtml(R)}${R.laterT?sjAlert(R):''}${R.kind==='grandparents'?GP_ALERT:R.ggrand?GG_ALERT:R.laterT?'':'<p class="q-help">下の「集める書類のチェックシート」を確認し、必要に応じて印刷してください。</p>'}`;
+    body=`<div class="q-step">質問は以上です</div>${attCountHtml(R)}${R.laterT?sjAlert(R):''}${R.kind==='grandparents'?GP_ALERT:R.ggrand?GG_ALERT:R.laterT?'':'<p class="q-help">下の「集める書類のチェックシート」を確認し、必要に応じて印刷してください。</p>'}${attApplyHtml(R)}`;
   }
   box.innerHTML=`<div class="q-head"><strong>必要書類の確認（質問に答えてください）</strong>
       <span><button type="button" class="btn-sub" data-qa="back" ${path.length?'':'disabled'}>↶ 1つ前の質問に戻る</button> <button type="button" class="btn-sub" data-qa="reset" ${path.length?'':'disabled'}>最初からやり直す</button></span></div>
@@ -2253,7 +2257,9 @@ function renderAttQ(){
 function attAnswer(v){
   const a=attAns(),{path,cur}=attWalk();if(!cur)return;
   checkpoint('attq',true);
-  a[cur]=v;renderAtt();
+  a[cur]=v;
+  if(cur==='apply'&&v==='yes'){attToForm();return;}
+  renderAtt();
 }
 document.addEventListener('click',e=>{
   const b=e.target.closest('#attQ button[data-qa]');if(!b)return;
@@ -2268,6 +2274,114 @@ document.addEventListener('click',e=>{
   }else if(k==='back'&&path.length){checkpoint('attq',true);delete a[path[path.length-1]];renderAtt();}
   else if(k==='reset'){checkpoint('attq',true);state.attq={ans:{}};renderAtt();}
 });
+/* ---------- 質問の答えを一覧図の入力欄に反映 ---------- */
+let attNotice=null;   // 反映後に一覧図の入力欄の上に出すお知らせ {ok:bool,lines:[]}
+function attNoticeHtml(){
+  if(!attNotice)return '';
+  return `<div class="note ${attNotice.ok?'okline':'warnline'}" role="status" style="margin:0 0 14px;padding:8px 10px;border:1px solid var(--line);border-radius:4px;background:var(--field)">
+    ${attNotice.lines.map(t=>`<p style="margin:2px 0">${esc(t)}</p>`).join('')}
+    <p style="margin:6px 0 0;text-align:right"><button type="button" class="btn-sub" data-act="attNoticeClose">閉じる</button></p></div>`;
+}
+const attSig=()=>{const a={...attAns()};delete a.apply;return JSON.stringify(a);};
+// 反映できない理由（相続人の構成）。空なら反映できる
+function attApplyBlock(R){
+  const why=[];
+  if(R.kind==='grandparents')why.push('祖父母が相続人になる一覧図には対応していません。');
+  if(R.ggrand)why.push('ひ孫（再代襲相続人）を含む一覧図には対応していません。');
+  if(R.laterT)why.push('数次相続は1枚の一覧図で表せないため、相続人の欄は反映しません。');
+  if(R.kind==='none'&&!R.spouse)why.push('相続人が見当たらないため、相続人の欄は反映しません。');
+  if(!why.length){
+    const P=attPlan(R);
+    if(P&&P.list&&P.list.length>MAX_ENTRIES)why.push(`相続人の欄が${P.list.length}人分になり、入力できる上限（${MAX_ENTRIES}人）を超えます。`);
+    if(P&&P.list&&P.list.some(e=>e.kids>MAX_KIDS))why.push(`代襲者が${MAX_KIDS}人を超える欄があり、入力できる上限を超えます。`);
+  }
+  return why;
+}
+// 回答から、一覧図に必要な欄の構成を組み立てる（氏名などはまだ入れない）
+// list の各要素：{rep:false,side} または {rep:true,kids:人数,side}
+function attPlan(R){
+  if(R.kind==='children'){
+    const list=[];
+    for(let i=0;i<R.childAlive;i++)list.push({rep:false,side:'full'});
+    (R.grandInfo||[]).forEach(g=>{const n=g.n-g.dead;if(n>0)list.push({rep:true,kids:n,side:'full'});});
+    return {pattern:'children',list};
+  }
+  if(R.kind==='parents')return {pattern:'parents'};
+  if(R.kind==='siblings'){
+    const deadFull=R.sibDead-R.sibDeadHalf, aliveHalf=Math.max(0,R.sibHalfN-R.sibDeadHalf), aliveFull=Math.max(0,R.sibAlive-aliveHalf);
+    const nAlive=i=>(R.nephewList[i]||0)-((R.nephewDeadList||[])[i]||0);
+    const list=[];
+    for(let i=0;i<aliveFull;i++)list.push({rep:false,side:'full'});
+    for(let i=0;i<deadFull;i++)if(nAlive(i)>0)list.push({rep:true,kids:nAlive(i),side:'full'});
+    for(let i=0;i<aliveHalf;i++)list.push({rep:false,side:'half'});
+    for(let i=deadFull;i<R.sibDead;i++)if(nAlive(i)>0)list.push({rep:true,kids:nAlive(i),side:'half'});
+    return {pattern:'siblings',list};
+  }
+  if(R.kind==='none'&&R.spouse)return {pattern:'children',list:[]};   // 配偶者のみが相続人
+  return null;
+}
+function attApplyHtml(R){
+  const a=attAns();
+  if(a.apply==='yes'&&state.attq.applied===attSig())return '<p class="q-help" style="color:var(--accent);font-weight:700">✔ 回答を一覧図の入力欄に反映しました。下の「集める書類のチェックシート」を確認したあと、上の「一覧図」タブを開いて氏名などを入力してください。</p>';
+  if(a.apply==='yes')return '<p class="q-help" style="color:var(--warn)">⚠ 一覧図の入力欄は、反映したあとに変更されています（「元に戻す」で反映を取り消した場合など）。もう一度反映するときは「1つ前の質問に戻る」を押して、最後の質問に答え直してください。</p>';
+  return '<p class="q-help">一覧図の入力欄には反映していません。反映するときは「1つ前の質問に戻る」を押して、最後の質問で「はい」を選んでください。</p>';
+}
+// 既にある欄のうち、条件に合うものを先頭から使い回す
+function reuseEntries(old,plan,rel){
+  const pool={alive:{full:[],half:[]},rep:{full:[],half:[]}};
+  for(const e of old||[])pool[e.status==='rep'?'rep':'alive'][e.side==='half'?'half':'full'].push(e);
+  return plan.map(pl=>{
+    const side=pl.side||'full', e=pool[pl.rep?'rep':'alive'][side].shift();
+    const base=e?{...e}:{status:'alive',side,...person(),death:blankDate(),kids:[]};
+    base.side=side;
+    if(!pl.rep){base.status='alive';return base;}
+    base.status='rep';
+    const kids=(e&&e.kids)||[];
+    base.kids=Array.from({length:pl.kids},(_,j)=>kids[j]?kids[j]:person(rel));
+    return base;
+  });
+}
+function attToForm(){
+  const R=attResult();if(!R.done)return;
+  checkpoint('attApply',true,ALL_SECS);
+  // 最初のサンプル（山田太郎など）のままなら、相続関係の入力を空にしてから反映
+  const pick=o=>JSON.stringify([o.deceased,o.spouse,o.children,o.parents,o.siblings]);
+  if(pick(state)===pick(DEFAULTS)){
+    CLEAR.deceased();CLEAR.spouse();state.children=[];state.siblings=[];
+    state.parents={father:{on:true,...person('父')},mother:{on:true,...person('母')}};
+  }
+  const lines=[],block=attApplyBlock(R),P=block.length?null:attPlan(R);
+  if(P){
+    state.pattern=P.pattern;
+    state.hasSpouse=R.spouse;
+    if(P.pattern==='children')state.children=reuseEntries(state.children,P.list,'孫・代襲者');
+    if(P.pattern==='parents'){state.parents.father.on=R.father;state.parents.mother.on=R.mother;}
+    if(P.pattern==='siblings'){
+      state.siblings=reuseEntries(state.siblings,P.list,'甥・代襲者');
+      state.halfSib={on:R.sibHalfN>0,common:R.halfCommon||'父'};
+    }
+    const t=[];
+    if(R.spouse)t.push('配偶者');
+    if(P.pattern==='parents'){if(R.father)t.push('父');if(R.mother)t.push('母');}
+    if(P.list){const a=P.list.filter(x=>!x.rep).length,r=P.list.filter(x=>x.rep);
+      const nm=P.pattern==='children'?['子','孫']:['兄弟姉妹','甥・姪'];
+      if(a)t.push(`${nm[0]} ${a}名`);if(r.length)t.push(`代襲相続 ${r.length}件（${nm[1]} ${r.reduce((s,x)=>s+x.kids,0)}名）`);}
+    lines.push('「集める戸籍類の確認」の回答をもとに、一覧図の入力欄を用意しました（'+(t.join('、')||'相続人なし')+'）。');
+    lines.push('氏名・続柄・生年月日・住所などを戸籍のとおりに入力してください。'+(P.list&&P.list.some(x=>x.rep)?'代襲相続の欄は、被代襲者の死亡年月日も入力してください。':''));
+  }else lines.push(...block);
+  state.showAddr=R.addr;
+  if(R.who==='pro'){state.creator.mode='agent';state.app.agentRel='ninni';}
+  else if(R.who==='self')state.creator.mode='self';
+  state.app.delivery=R.mail?'mail':'window';
+  state.layout={pages:1,split:0};
+  state.attq.applied=attSig();
+  lines.push(`作成者を「${state.creator.mode==='agent'?'資格者代理人':'申出人本人'}」、相続人の住所を「${R.addr?'記載する':'記載しない'}」、写しの交付方法を「${R.mail?'郵送':'窓口で受取'}」にしました。`);
+  attNotice={ok:!!P,lines};
+  saveAgentSoon();
+  renderForm();draw();updUndo();renderAtt();   // タブは切り替えず、添付資料（チェックシート）を表示したままにする
+  document.querySelector('.panel').scrollTop=0;
+  urMsg('「集める戸籍類の確認」の回答を一覧図に反映しました。「元に戻す」で戻せます。');
+}
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target&&e.target.id==='qNum'){e.preventDefault();const b=document.querySelector('#attQ button[data-qa="num"]');if(b)b.click();}});
 
 /* ---------- 質問の答えから描く、簡単な相続関係図（氏名なし） ---------- */
@@ -2748,7 +2862,7 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
       <li><a href="#m-about">このツールでできること</a></li>
       <li><a href="#m-screen">画面の見かた</a></li>
       <li><a href="#m-flow">作成の流れ（全体）</a></li>
-      <li><a href="#m-att">必要書類の確認（添付資料）</a></li>
+      <li><a href="#m-att">集める戸籍類の確認</a></li>
       <li><a href="#m-pattern">相続人のパターン</a></li>
       <li><a href="#m-deceased">亡くなった方（被相続人）</a></li>
       <li><a href="#m-spouse">配偶者</a></li>
@@ -2772,14 +2886,14 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
 <ul>
 <li><b>法定相続情報一覧図</b>：だれが相続人なのかを、家系図のような形でまとめた書類です。法務局の記載例に沿った形で作られます。印刷・PDFのほか、Excelファイルでも出力できます。</li>
 <li><b>申出書</b>（法定相続情報一覧図の保管及び交付の申出書）：一覧図と一緒に法務局へ出す書類です。法務局の様式（Wordファイル）に、入力した内容が書き込まれます。</li>
-<li><b>添付資料のチェックシート</b>：質問に答えると、「だれの」「どのような」戸籍や住民票を集めればよいかの一覧と、簡単な相続関係図、相続の手続きに関わる方の人数ができあがります。故人の死亡後に相続人が亡くなっている場合（数次相続）も、関係図と人数の目安を確認できます。</li>
+<li><b>集める書類のチェックシート</b>：質問に答えると、「だれの」「どのような」戸籍や住民票を集めればよいかの一覧と、簡単な相続関係図、相続の手続きに関わる方の人数ができあがります。故人の死亡後に相続人が亡くなっている場合（数次相続）も、関係図と人数の目安を確認できます。</li>
 </ul>
 <p>被相続人・申出人・代理人（作成者）の情報は、一覧図と申出書で共通です。どちらの入力欄で直しても、もう一方に反映されます。同じ内容を2回入力する必要はありません。</p>
       <h3 id="m-screen">2. 画面の見かた</h3>
 <ul>
-<li><b>左側</b>：入力する場所です。上から順に入力していきます。右側で<span class="btnlike">一覧図</span>または<span class="btnlike">添付資料</span>のタブを開いているときは一覧図の入力欄、<span class="btnlike">申出書</span>のタブを開いているときは申出書の入力欄が表示されます。</li>
+<li><b>左側</b>：入力する場所です。上から順に入力していきます。右側で<span class="btnlike">集める戸籍類の確認</span>または<span class="btnlike">一覧図</span>のタブを開いているときは一覧図の入力欄、<span class="btnlike">申出書</span>のタブを開いているときは申出書の入力欄が表示されます。</li>
 <li><b>右側</b>：できあがりの見本（プレビュー）です。入力するとすぐに変わります。</li>
-<li><b>右側の上のタブ</b>：<span class="btnlike">一覧図</span><span class="btnlike">申出書</span><span class="btnlike">添付資料</span>を押すと、表示を切り替えられます。タブの右端の<span class="btnlike">保存・読込</span>ボタンで、入力内容の保存と読み込みができます。</li>
+<li><b>右側の上のタブ</b>：<span class="btnlike">集める戸籍類の確認</span><span class="btnlike">一覧図</span><span class="btnlike">申出書</span>を押すと、表示を切り替えられます。タブの右端の<span class="btnlike">保存・読込</span>ボタンで、入力内容の保存と読み込みができます。</li>
 <li><b>左側のいちばん上</b>：<span class="btnlike">↶ 元に戻す</span><span class="btnlike">↷ やり直し</span><span class="btnlike">？ 使い方</span><span class="btnlike">すべてクリア</span>のボタンがあります。下へ進んでも、この列はいつも上に表示されます。</li>
 </ul>
 <p>スマートフォンなど画面がせまいときは、入力する場所が上、見本が下に並びます。</p>
@@ -2787,7 +2901,7 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
 <p>文字の縮小などのお知らせは、一覧図のタブを開いているときだけ見本の上に表示されます。申出書のタブでは、申出書の入力漏れのお知らせが表示されます。</p>
       <h3 id="m-flow">3. 作成の流れ（全体）</h3>
 <ol>
-<li><span class="btnlike">添付資料</span>タブで質問に答え、集める戸籍や住民票を確認します（必要な方だけ）。</li>
+<li><span class="btnlike">集める戸籍類の確認</span>タブで質問に答え、集める戸籍や住民票を確認します（必要な方だけ）。戸籍がすでにそろっているなど、確認が必要ない場合は、この手順を飛ばして<span class="btnlike">一覧図</span>タブから直接作成を始められます。最後の質問「一覧図の入力欄に反映させますか？」で<span class="btnlike">はい（一覧図に反映させる）</span>を選ぶと、次の2〜5の欄があらかじめ用意されます。</li>
 <li>集めた戸籍をもとに、「相続人のパターン」を選びます（相続人が子か、親か、兄弟姉妹か）。</li>
 <li>亡くなった方（被相続人）、配偶者、ほかの相続人の情報を入力します。</li>
 <li>法務局へ申し出る人に「申出人として表示する」のチェックを入れます。</li>
@@ -2797,17 +2911,18 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
 <li>必要なら、入力内容を保存しておきます。</li>
 </ol>
 <div class="tip">入力する内容は、戸籍や住民票に書かれているとおりに入れてください。</div>
-      <h3 id="m-att">4. 必要書類の確認（添付資料）</h3>
-<p>右側の<span class="btnlike">添付資料</span>タブを開くと、質問が1問ずつ表示されます。はい・いいえ、人数、手続きをする人を答えていくと、最後に相続関係図、手続きに関わる方の人数、「集める書類のチェックシート」ができあがります。一覧図の入力内容とは連動しません。</p>
+      <h3 id="m-att">4. 集める戸籍類の確認</h3>
+<div class="tip">この質問に答えるかどうかは自由です。戸籍がすでにそろっている場合など、確認が必要ないときは、質問に答えずに<span class="btnlike">一覧図</span>タブを開いて、入力欄に直接入力して作成できます。</div>
+<p>右側の<span class="btnlike">集める戸籍類の確認</span>タブを開くと、質問が1問ずつ表示されます。はい・いいえ、人数、手続きをする人を答えていくと、最後に相続関係図、手続きに関わる方の人数、「集める書類のチェックシート」ができあがります。最後の質問で<span class="btnlike">はい（一覧図に反映させる）</span>を選ぶと、回答に合わせて一覧図の入力欄が用意されます（下の「一覧図への反映」を参照）。</p>
 <h4>質問の内容</h4>
 <ul>
 <li><b>配偶者</b>：亡くなったときに結婚していたか、配偶者はご存命だったか</li>
 <li><b>子</b>：人数、前の結婚の子や認知した子の人数、故人より先に亡くなった子（それぞれに孫がいたか・何人か）、先に亡くなった孫（それぞれにひ孫がいたか・何人か）</li>
 <li><b>父母・祖父母</b>（子の側に相続人がいない場合）：父・母はご存命だったか、祖父母でご存命の方はいたか（いた場合は何人か）</li>
-<li><b>兄弟姉妹</b>（父母・祖父母とも亡くなっている場合）：人数、父母の一方のみが同じ兄弟姉妹の人数、先に亡くなった兄弟姉妹（それぞれに甥・姪がいたか・何人か）、先に亡くなった甥・姪の人数</li>
+<li><b>兄弟姉妹</b>（父母・祖父母とも亡くなっている場合）：人数、父母の一方のみが同じ兄弟姉妹の人数と、故人と共通している親（再婚した親）が父か母か、先に亡くなった兄弟姉妹（それぞれに甥・姪がいたか・何人か）、先に亡くなった甥・姪の人数</li>
 <li><b>故人の死亡後に亡くなった相続人</b>（数次相続）：相続人の中に、故人が亡くなった後に亡くなった方がいるか。いる場合は、配偶者・子・孫（代襲相続人）・父・母・兄弟姉妹・甥・姪（代襲相続人）のうち、どなたが何人か</li>
 <li><b>その方の相続人</b>（二次相続）：故人の死亡後に亡くなった方1人ごとに、その方が亡くなったときに配偶者がいたか、子どもは何人か、子どもがいない場合は父母・兄弟姉妹などの相続人が何人か、そのうち故人の相続人（または前に答えた方の相続人）と同じ方が何人か、その相続人の中にさらに後から亡くなった方がいるか</li>
-<li><b>最後に</b>：申出はだれが行うか（相続人本人／専門家／親族）、一覧図に住所を記載するか、写しを郵送で受け取るか</li>
+<li><b>最後に</b>：申出はだれが行うか（相続人本人／専門家）、一覧図に住所を記載するか、写しを郵送で受け取るか、回答を一覧図の入力欄に反映させるか</li>
 </ul>
 <p>生きていたかどうかは、すべて「故人が亡くなった時点で」答えてください。故人と<b>同じ日</b>に亡くなった方は「先に亡くなった方」として答えます。故人の死亡<b>後</b>に亡くなった方は、亡くなった時点ではご存命だったので「ご存命（相続人）」として答え、あとの数次相続の質問で「亡くなった」と答えます。二次相続の質問だけは、「その方が亡くなった時点で」答えてください。人数の欄は、入力してEnterキーを押しても次へ進めます。答えを直したいときは<span class="btnlike">↶ 1つ前の質問に戻る</span>、はじめから答え直すときは<span class="btnlike">最初からやり直す</span>を押します。</p>
 <h4>質問中の相続関係図</h4>
@@ -2818,6 +2933,16 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
 <li>申出人・住所の記載・郵送の質問のときは、図は表示されません。質問中の図は画面だけの表示で、印刷されません。</li>
 </ul>
 <p>「先に亡くなった子どもは何人ですか？」のように、生きているかどうかをまだ聞いている段階では、子どもなどの枠に仮に「相続人」と表示されます。答えると、次の図から「亡くなった子①」などに切り替わります。</p>
+<h4>一覧図への反映</h4>
+<p>質問の最後に「この質問の回答を、一覧図の入力欄に反映させますか？」と聞かれます。<span class="btnlike">はい（一覧図に反映させる）</span>を選ぶと、次の内容が一覧図の入力欄に反映されます。画面は「集める戸籍類の確認」タブのまま変わらず、「集める書類のチェックシート」が表示されます。チェックシートを確認したら、<span class="btnlike">一覧図</span>タブを開いて入力を続けてください。<span class="btnlike">いいえ（一覧図に反映させない）</span>を選ぶと、一覧図の入力欄は変わりません。</p>
+<ul>
+<li>相続人のパターン（配偶者・子／配偶者・親／配偶者・兄弟姉妹）と、「配偶者を記載する」のチェック</li>
+<li>子・兄弟姉妹の欄の人数（存命の方を先、代襲相続の欄を後に並べます）。代襲相続の欄には代襲者（孫・甥・姪）の欄も人数分用意します。先に亡くなっていて代襲者がいない子・兄弟姉妹は、一覧図に載らないため欄を作りません。</li>
+<li>親のパターンでは「父を記載する」「母を記載する」のチェック。兄弟姉妹で父母の一方のみが同じ方がいる場合は「父または母が再婚している」のチェックと再婚した親、各兄弟姉妹の「親」の選択</li>
+<li>「相続人の住所を記載する」のチェック、作成者の形式（相続人本人→申出人本人／専門家→資格者代理人・委任による代理人）、申出書の写しの交付方法（郵送／窓口で受取）</li>
+</ul>
+<p>氏名・続柄・生年月日・住所、被代襲者の死亡年月日は反映されません。戸籍のとおりに入力してください。入力済みの氏名などは、できるだけ残したまま人数だけを増減します（最初のサンプルの内容のままなら、空欄にしてから反映します）。反映したあとでも、上部の<span class="btnlike">↶ 元に戻す</span>で反映前に戻せます。</p>
+<p>祖父母やひ孫が相続人になる場合、数次相続がある場合、人数が入力欄の上限を超える場合は、相続人の欄は反映せず、住所の記載・作成者・交付方法だけを反映します。回答を直すときは<span class="btnlike">↶ 1つ前の質問に戻る</span>で戻ります。最後の質問も答え直しになるため、そこで「はい」を選ぶと、直した回答でもう一度反映できます。「いいえ」を選んだあとで反映したくなった場合も、1つ前の質問に戻って「はい」を選んでください。</p>
 <h4>相続関係図の見方</h4>
 <ul>
 <li><b>黒の太枠</b>：被相続人（故人）　<b>青い枠</b>：相続人　<b>オレンジ色の枠</b>：相続人だが、故人の死亡後に亡くなった方（数次相続）　<b>灰色の点線枠</b>：先に亡くなった方（相続人にならない）　<b>赤い枠</b>：このツールでは扱えない方（ひ孫・祖父母、さらに先の数次相続）</li>
@@ -2971,7 +3096,7 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
 </ol>
 <div class="tip">申出書は、法務局の様式ファイルの空欄に書き込む形で作られます。チェック欄はWordの中でクリックして付け外しもできます。見本の表示はパソコンの書体によって改行の位置がわずかに違うことがあるため、最終確認はWordの印刷プレビューで行ってください。</div>
       <h3 id="m-save">15. 保存と読み込み</h3>
-<p>入力した内容は、保存しないとページを閉じたときに消えます。右側のタブ（一覧図・申出書・添付資料）の右端にある<span class="btnlike">保存・読込</span>ボタンを押すと、保存・読込の画面が開きます。今見ているタブはそのままです。一覧図・申出書の入力と、添付資料の質問の答えがまとめて保存されます。</p>
+<p>入力した内容は、保存しないとページを閉じたときに消えます。右側のタブ（集める戸籍類の確認・一覧図・申出書）の右端にある<span class="btnlike">保存・読込</span>ボタンを押すと、保存・読込の画面が開きます。今見ているタブはそのままです。一覧図・申出書の入力と、「集める戸籍類の確認」の質問の答えがまとめて保存されます。</p>
 <ul>
 <li><b>保存名</b>：「（亡くなった方の氏名）一覧図」が自動で入ります。必要なら直してください。ファイル名にもこの名前が使われます（例：山田太郎一覧図.json）。</li>
 <li><b>ファイルに保存</b>：パソコンにファイルとして保存します。手元のHTMLファイルをChromeまたはEdgeで開いている場合は、保存先のフォルダを選ぶ画面が開きます（前回選んだフォルダから始まります）。それ以外の環境（リンクから開いたページ、Safari、Firefoxなど）では、ブラウザのダウンロード先に保存されます。<span class="btnlike">ファイルを読み込む</span>で元に戻せます。</li>
@@ -2982,13 +3107,13 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
       <h3 id="m-undo">16. 元に戻す・クリア</h3>
 <dl>
 <dt><span class="btnlike">↶ 元に戻す</span><span class="btnlike">↷ やり直し</span>（いちばん上）</dt>
-<dd>どの欄かに関係なく、直前の操作を1つずつ戻します（添付資料の質問の答えも含みます）。戻しすぎたときは「やり直し」で進めます。入力欄の外で <kbd>Ctrl</kbd>＋<kbd>Z</kbd>（Macは <kbd>⌘</kbd>＋<kbd>Z</kbd>）、<kbd>Ctrl</kbd>＋<kbd>Y</kbd> でも操作できます。</dd>
+<dd>どの欄かに関係なく、直前の操作を1つずつ戻します（「集める戸籍類の確認」の質問の答えも含みます）。戻しすぎたときは「やり直し」で進めます。入力欄の外で <kbd>Ctrl</kbd>＋<kbd>Z</kbd>（Macは <kbd>⌘</kbd>＋<kbd>Z</kbd>）、<kbd>Ctrl</kbd>＋<kbd>Y</kbd> でも操作できます。</dd>
 <dt>見出しの横の<span class="btnlike">↶ 元に戻す</span><span class="btnlike">↷ やり直し</span></dt>
 <dd>その見出しの中の変更だけを戻します。ほかの欄の変更はそのまま残ります。</dd>
 <dt>見出しの横の<span class="btnlike">クリア</span></dt>
 <dd>その見出しの入力内容を消します。「作成者」のクリアは、覚えている作成者の情報に戻ります。</dd>
 <dt><span class="btnlike">すべてクリア</span></dt>
-<dd>一覧図・申出書の入力内容と、添付資料の質問の答えをまとめて消します。作成者の情報と、登録した法務局は残ります。</dd>
+<dd>一覧図・申出書の入力内容と、「集める戸籍類の確認」の質問の答えをまとめて消します。作成者の情報と、登録した法務局は残ります。</dd>
 </dl>
 <p>クリアのボタンは、1回押すと赤くなり「もう一度押すと消去」と表示されます。4秒以内にもう一度押すと消えます。消したあとでも「元に戻す」で戻せます。</p>
       <h3 id="m-memory">17. 自動で覚える情報</h3>
@@ -2996,7 +3121,7 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
 <ul>
 <li><b>作成者（資格者代理人）の情報</b>：資格・氏名・事務所の住所（2段目まで）・事務所名・連絡先。直すと、覚えている内容も新しくなります。</li>
 <li><b>よく使用する法務局</b>：登録した法務局の一覧。</li>
-<li><b>広域交付制度の解説を印刷するかどうか</b>：添付資料のチェックシートの設定。</li>
+<li><b>広域交付制度の解説を印刷するかどうか</b>：集める書類のチェックシートの設定。</li>
 </ul>
 <div class="tip">別のパソコンやブラウザ、リンクから開いたページと手元のHTMLファイルでは、覚えている内容は共有されません。ブラウザの閲覧データを消すと、覚えている内容も消えます。</div>
       <h3 id="m-faq">18. 困ったときは</h3>
@@ -3013,15 +3138,15 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
 <dt>提出先の住所が「登録されていません」と表示される</dt><dd>一部の庁（秋田地方法務局大曲支局、長崎地方法務局諫早支局）は住所を登録していません。表示されるリンクから法務局のページで確認してください。</dd>
 <dt>「被代襲者の死亡日が、被相続人の死亡日より後になっています」と表示される</dt><dd>死亡日の入力が正しいか確かめてください。正しい場合は、代襲相続ではなく数次相続です。1枚の一覧図では表せないため、専門家または法務局へご相談ください。</dd>
 <dt>手続きに関わる方の人数が「○名以上」と表示される</dt><dd>故人の死亡後に亡くなった方の相続人の中に、さらに後から亡くなった方がいるためです。その先の相続人はこのツールでは数えられないため、人数が確定できません。</dd>
-<dt>チェックシートを印刷できない</dt><dd><span class="btnlike">チェックシートを印刷</span>は、添付資料の質問に最後まで答えると押せるようになります。</dd>
+<dt>チェックシートを印刷できない</dt><dd><span class="btnlike">チェックシートを印刷</span>は、「集める戸籍類の確認」の質問に最後まで答えると押せるようになります。</dd>
 </dl>
       <h3 id="m-limit">19. このツールで対応していない範囲</h3>
 <ul>
-<li>祖父母や、ひ孫（再代襲相続人）が相続人になる場合の一覧図（添付資料の質問では、関係図と書類の目安を表示し、専門家への相談をご案内します）。</li>
-<li>数次相続（被相続人の死亡後に相続人が亡くなった場合）の一覧図。発生した相続ごとに一覧図が必要です。添付資料の質問では、故人の死亡後に亡くなった方の相続人（二次相続）までの関係図と、手続きに関わる方の人数の目安を表示します。</li>
+<li>祖父母や、ひ孫（再代襲相続人）が相続人になる場合の一覧図（「集める戸籍類の確認」の質問では、関係図と書類の目安を表示し、専門家への相談をご案内します）。</li>
+<li>数次相続（被相続人の死亡後に相続人が亡くなった場合）の一覧図。発生した相続ごとに一覧図が必要です。「集める戸籍類の確認」の質問では、故人の死亡後に亡くなった方の相続人（二次相続）までの関係図と、手続きに関わる方の人数の目安を表示します。</li>
 <li>二次相続の相続人のうち、父母・兄弟姉妹などは人数だけを聞き、「その他の相続人」としてまとめて表示します（一人ずつの描き分けはしません）。二次相続の一覧図に必要な戸籍などは、チェックシートに含まれません。</li>
 <li>三次相続以降（二次相続の相続人の中に、さらに後から亡くなった方がいる場合）の相続人の確認・表示と人数の確定。</li>
-<li>子のパターンで、被相続人に前の結婚の子や認知した子がいる場合の描き分け（添付資料の関係図では描けますが、一覧図の入力では描き分けられません）。</li>
+<li>子のパターンで、被相続人に前の結婚の子や認知した子がいる場合の描き分け（「集める戸籍類の確認」の関係図では描けますが、一覧図の入力では描き分けられません）。</li>
 <li>3枚以上にわたる一覧図、親のパターンでの2枚分け。</li>
 <li>旧民法（家督相続）による一覧図、列挙形式の一覧図。</li>
 <li>相続人がいない場合の手続き。</li>
