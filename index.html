@@ -1442,7 +1442,7 @@ function compute(s){
 let lastDrawing=null,lastDrawings=[],lastLayout=null;
 function buildDrawing(L,pi){
   const texts=[],lines=[],PG=L.pages[pi],total=L.pages.length;
-  const tfs=15*PT, nm=bare(state.deceased.name)||'〇〇〇〇', pg=total>1?`${pi+1}／${total}`:'';
+  const tfs=15*PT, nm=String(state.deceased.name||'').trim()||'〇〇〇〇', pg=total>1?`${pi+1}／${total}`:'';
   const parts=['被相続人',String(state.deceased.name||'').trim()||'〇〇〇〇','法定相続情報'];if(pg)parts.push(pg);
   texts.push({x:105,y:TITLE_Y,s:`被相続人　　${nm}　　法定相続情報${pg?'　　'+pg:''}`,fs:tfs,anchor:'middle',title:true,parts});
   for(const t of PG.F.texts)texts.push(t);
